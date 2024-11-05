@@ -1,0 +1,3 @@
+[submodule "CliniOpsAI-Front-end"]
+	path = CliniOpsAI-Front-end
+	url = https://github.com/CognifAI-solutions/CliniOpsAI-Front-end.git
