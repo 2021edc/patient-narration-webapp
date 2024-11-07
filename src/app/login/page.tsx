@@ -8,8 +8,8 @@ import { EyeNoneIcon, EyeOpenIcon } from '@radix-ui/react-icons';
 import { ISigninFormState } from '@/types';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import CliniwiseLogo from '@public/assets/CliniWiseAI.png';
-import ImageWrapper from '@/atoms/ImageWrapper';
+import CliniwiseLogo from '@/atoms/CliniwiseLogo';
+import MerilLogo from '@/atoms/MerilLogo';
 
 const LoginPage = () => {
   const router = useRouter();
@@ -30,14 +30,15 @@ const LoginPage = () => {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[80vh] justify-center items-center">
-      <section className="w-full h-full hidden lg:flex items-center justify-center flex-col ">
-        <ImageWrapper
-          src={CliniwiseLogo}
-          alt="CliniWiseAI logo"
-          imageSize="h-[500px] w-[500px]"
-          sizes=""
-        ></ImageWrapper>
-      </section>
+      <div className="w-full h-full hidden lg:flex items-center justify-center flex-col">
+        <h1 className="text-4xl text-gray-500 dark:text-gray-200 font-bold text-center">
+          Clinical Research and Medical Writing
+        </h1>
+        <div className="flex gap-8 my-12">
+          <CliniwiseLogo imageSize="h-[150px] w-[150px] lg:h-[200px] lg:w-[200px]"></CliniwiseLogo>
+          <MerilLogo imageSize="h-[150px] w-[150px] lg:h-[200px] lg:w-[200px]"></MerilLogo>
+        </div>
+      </div>
       <section className="w-full h-full flex items-center justify-center">
         <form
           className="flex flex-col items-center bg-light-bg dark:bg-dark-bg text-dark-text dark:text-light-text p-8 rounded-lg shadow-md w-11/12 md:w-4/5 max-w-[450px] min-h-[500px]"

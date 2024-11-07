@@ -21,6 +21,7 @@ const config: Config = {
         sm: 'calc(var(--radius) - 4px)',
       },
       colors: {
+        'meril-primary': '#5291cb',
         'dark-gray': '#393E46',
         'light-gray': '#929AAB',
         'light-bg': '#EEEEEE',

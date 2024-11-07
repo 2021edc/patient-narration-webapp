@@ -8,7 +8,7 @@ const NarrativePage = () => {
       <div className="flex items-center w-full py-5 px-4 top-0 dark:shadow-slate-700 dark:shadow-sm shadow-slate-200 shadow-sm">
         <BackArrow></BackArrow>
         <h1 className="font-bold text-black text-2xl mx-auto dark:text-white">
-          Patient Narration
+          Patient Narration Assisstant
         </h1>
       </div>
       <NarrationInputs />
