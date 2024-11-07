@@ -1,11 +1,17 @@
 interface LoadingSpinnerProps {
   className?: string;
+  color?: string;
+  colorDark?: string;
 }
 
-const LoadingSpinner = ({ className = 'h-8 w-8' }: LoadingSpinnerProps) => {
+const LoadingSpinner = ({
+  className = 'h-8 w-8',
+  color = 'text-white',
+  colorDark = 'text-dark-gray',
+}: LoadingSpinnerProps) => {
   return (
     <svg
-      className={`animate-spin text-white dark:text-dark-gray ${className}`}
+      className={`animate-spin ${color} dark:${colorDark} ${className}`}
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"

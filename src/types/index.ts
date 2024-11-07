@@ -1,3 +1,15 @@
+export interface IUserInfo {
+  fullname: string;
+  email: string;
+  userrole: string;
+  createdOn: string;
+}
+
+export interface INarrationTypes {
+  name: string;
+  coverage: string;
+}
+
 export interface ISigninFormState {
   success: boolean;
   errors: {
@@ -5,13 +17,6 @@ export interface ISigninFormState {
     password?: string[];
     _form?: string[];
   };
-}
-
-export interface IUserInfo {
-  fullname: string;
-  email: string;
-  userrole: string;
-  createdOn: string;
 }
 
 export interface IAddNewUserFormState {

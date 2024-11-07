@@ -1,3 +1,5 @@
+import { INarrationTypes } from '@/types';
+
 export const AUTH_COOKIE = 'authentication';
 export const USER_ROLE_COOKIE = 'user-role';
 
@@ -14,3 +16,13 @@ export enum ADMIN_DASHBOARD_TABS {
 export const USER_ROLES_OPTIONS = ['Admin', 'Analyst'];
 
 export const LS_KEY_USERSLIST = 'userlist';
+
+export const NARRATION_TYPES_LIST: INarrationTypes[] = [
+  { name: 'TAVI', coverage: 'All TAVI studies' },
+  { name: 'Surgical Value', coverage: 'Dafodil' },
+  { name: 'PCI', coverage: 'dES, BAllons, meres' },
+  { name: 'Ortho', coverage: 'TKR - Hip replacement' },
+  { name: 'General', coverage: 'CARTNAL, Floret ASD' },
+];
+
+export const MAX_SUBJECT_LIMIT = 30;

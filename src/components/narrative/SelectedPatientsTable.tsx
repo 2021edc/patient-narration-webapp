@@ -25,36 +25,39 @@ const SelectedPatientsTable = ({
   selectedPatientIds,
 }: SelectedPatientsTableProps) => {
   return (
-    <div className="my-10 border rounded-md ">
+    <div className="my-10 border rounded-md">
       <h2 className="text-xl font-semibold text-gray-500 my-4">
         Selected Patient Details
       </h2>
-      <Table>
-        <TableHeader className="text-lg">
-          <TableRow className="text-center">
-            {TABLE_HEADERS.map((header) => (
-              <TableHead className="font-bold" key={header}>
-                {header}
-              </TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {selectedPatientIds.map((patientId) => {
-            const data = patientData.find(
-              (item) => item.patientId === patientId
-            );
-            return (
-              <TableRow key={data?.patientId} className="text-left">
-                <TableCell>{data?.patientId.trim()}</TableCell>
-                <TableCell>{data?.site}</TableCell>
-                <TableCell>{data?.informedConsentDate.trim()}</TableCell>
-                <TableCell>{data?.demographics.join(', ').trim()}</TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
+      <div className="max-h-[60vh] relative overflow-auto">
+        <Table>
+          <TableHeader className="text-lg sticky top-0 bg-white">
+            <TableRow className="text-center">
+              {TABLE_HEADERS.map((header) => (
+                <TableHead className="font-bold" key={header}>
+                  {header}
+                </TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+
+          <TableBody>
+            {selectedPatientIds.map((patientId) => {
+              const data = patientData.find(
+                (item) => item.patientId === patientId
+              );
+              return (
+                <TableRow key={data?.patientId} className="text-left">
+                  <TableCell>{data?.patientId.trim()}</TableCell>
+                  <TableCell>{data?.site}</TableCell>
+                  <TableCell>{data?.informedConsentDate.trim()}</TableCell>
+                  <TableCell>{data?.demographics.join(', ').trim()}</TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 };

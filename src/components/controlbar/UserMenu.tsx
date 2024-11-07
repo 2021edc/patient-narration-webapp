@@ -18,16 +18,18 @@ const UserMenu = () => {
   const userEmail = cookies().get(AUTH_COOKIE)?.value;
 
   return (
-    <Menubar>
+    <Menubar className="bg-white">
       <MenubarMenu>
-        <MenubarTrigger>
+        <MenubarTrigger className="bg-white w-[14rem]">
           <div className="flex items-center gap-4">
-            <p>{userEmail}</p>
+            <p className="w-[10rem] overflow-hidden text-ellipsis">
+              {userEmail}
+            </p>
             <ChevronDownIcon className="h-4 w-4"></ChevronDownIcon>
           </div>
         </MenubarTrigger>
 
-        <MenubarContent>
+        <MenubarContent className="bg-white !w-[14rem]">
           <MenubarItem
             className="border-b py-2 dark:border-b-light-gray"
             asChild
