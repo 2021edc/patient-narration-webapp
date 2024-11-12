@@ -41,7 +41,7 @@ const UserMenu = () => {
               className="border-b py-2 dark:border-b-light-gray"
               asChild
             >
-              <Link href="/admin/admin-panel">Admin Panel</Link>
+              <Link href="/admin">Admin Dashboard</Link>
             </MenubarItem>
           )}
 

@@ -1,5 +1,5 @@
 import signoutAction from '@/actions/auth/signout.action';
-import FormSubmit from '@/atoms/FormSubmit';
+import FormSubmit from '@/atoms/formelements/FormSubmit';
 
 const LogoutForm = () => {
   return (
