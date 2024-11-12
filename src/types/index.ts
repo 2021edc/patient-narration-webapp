@@ -46,3 +46,15 @@ export interface IEditUserFormState {
     userrole: string;
   };
 }
+
+export interface IUpdatePasswordFormState {
+  success: boolean;
+  errors: {
+    password?: string[];
+    confirmpassword?: string[];
+    _form?: string[];
+  };
+  data?: {
+    fullname?: string;
+  };
+}

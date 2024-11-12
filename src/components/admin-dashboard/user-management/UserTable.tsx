@@ -10,45 +10,56 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { IUserInfo } from '@/types';
-import EditUserForm from './EditUserForm';
+import EditUserDialog from './EditUserDialog';
 
 interface UserTableProps {
   userList: IUserInfo[];
 }
+
+const TABLE_HEADERS = [
+  'Name',
+  'Email',
+  'Role',
+  'Date Created',
+  'Active',
+  'Actions',
+];
 
 const UserTable = ({ userList }: UserTableProps) => {
   return (
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className="py-2 px-4 text-left" colSpan={2}>
-            Name
-          </TableHead>
-          <TableHead className="py-2 px-4 text-left" colSpan={2}>
-            Email
-          </TableHead>
-          <TableHead className="py-2 px-4 text-left">Role</TableHead>
-          <TableHead className="py-2 px-4 text-left">Date Created</TableHead>
-          <TableHead className="py-2 px-4 text-left">Active</TableHead>
-          <TableHead className="py-2 px-4 text-left">Actions</TableHead>
+          {TABLE_HEADERS.map((header) => (
+            <TableHead
+              key={header}
+              className="py-2 px-4 text-center bg-dark-gray text-white"
+            >
+              {header}
+            </TableHead>
+          ))}
         </TableRow>
       </TableHeader>
       <TableBody>
         {userList.map((user) => (
           <TableRow key={user.email} className="border-b dark:border-gray-700">
-            <TableCell className="py-2 px-4" colSpan={2}>
+            <TableCell className="py-4 px-4 text-center">
               {user.fullname}
             </TableCell>
-            <TableCell className="py-2 px-4" colSpan={2}>
+            <TableCell className="py-4 px-4 text-center">
               {user.email}
             </TableCell>
-            <TableCell className="py-2 px-4">{user.userrole}</TableCell>
-            <TableCell className="py-2 px-4">{user.createdOn}</TableCell>
-            <TableCell className="py-2 px-4">
+            <TableCell className="py-4 px-4 text-center">
+              {user.userrole}
+            </TableCell>
+            <TableCell className="py-4 px-4 text-center">
+              {user.createdOn}
+            </TableCell>
+            <TableCell className="py-4 px-4 text-center">
               <Switch></Switch>
             </TableCell>
-            <TableCell className="py-2 px-4">
-              <EditUserForm userInfo={user} />
+            <TableCell className="py-4 px-4 text-center">
+              <EditUserDialog userInfo={user}></EditUserDialog>
             </TableCell>
           </TableRow>
         ))}

@@ -3,17 +3,18 @@
 import { IEditUserFormState } from '@/types';
 import { z } from 'zod';
 
-const validationSchema = z
-  .object({
-    fullname: z.string().min(6, { message: 'Name is required' }),
-    password: z.string().min(8, { message: 'Minimum 8 characters' }),
-    confirmpassword: z.string().min(8, { message: 'Minimum 8 characters' }),
-    userrole: z.string().min(1, { message: 'Role is required' }),
-  })
-  .refine((data) => data.password === data.confirmpassword, {
-    message: `Passwords don't match`,
-    path: ['confirmpassword'],
-  });
+const validationSchema = z.object({
+  fullname: z
+    .string()
+    .min(6, { message: 'Name is required' })
+    .trim()
+    .refine((value) => value.replace(/\s+/g, '') === value, {
+      message: 'Spaces not allowed',
+    }),
+
+  userrole: z.string().min(1, { message: 'Role is required' }),
+});
+
 const EditUserAction = async (
   formState: IEditUserFormState,
   formData: FormData
@@ -26,7 +27,7 @@ const EditUserAction = async (
     return { success: false, errors: validation.error.flatten().fieldErrors };
   }
 
-  //TODO make api call to the backend to add user, during api integration
+  //TODO make api call to the backend to update user, during api integration
 
   const { fullname, userrole } = validation.data;
   return {

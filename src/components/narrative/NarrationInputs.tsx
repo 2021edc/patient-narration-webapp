@@ -226,7 +226,8 @@ const NarrationInputs = () => {
             setSelectedNarration={setSelectedNarration}
           ></NarrationDropdown>
           <MultiSelectDropdown
-            options={sites}
+            key={'siteselection'}
+            optionsList={sites}
             selectedOptions={selectedSites}
             onSelect={handleSiteSelect}
             onUnselect={handleSiteUnselect}
@@ -236,7 +237,8 @@ const NarrationInputs = () => {
             disabled={!selectedNarration}
           ></MultiSelectDropdown>
           <MultiSelectDropdown
-            options={patientIds}
+            key={'subjectselection'}
+            optionsList={patientIds}
             selectedOptions={selectedPatientIds}
             onSelect={handlePatientSelect}
             onUnselect={handlePatientUnselect}

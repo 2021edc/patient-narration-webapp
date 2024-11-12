@@ -5,7 +5,13 @@ import { z } from 'zod';
 
 const validationSchema = z
   .object({
-    fullname: z.string().min(6, { message: 'Name is required' }),
+    fullname: z
+      .string()
+      .min(6, { message: 'Name is required' })
+      .trim()
+      .refine((value) => value.replace(/\s+/g, '') === value, {
+        message: 'Spaces not allowed',
+      }),
     email: z.string().email().min(6, { message: 'Email is required' }),
     password: z.string().min(8, { message: 'Minimum 8 characters' }),
     confirmpassword: z.string().min(8, { message: 'Minimum 8 characters' }),

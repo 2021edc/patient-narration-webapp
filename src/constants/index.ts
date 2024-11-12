@@ -26,3 +26,5 @@ export const NARRATION_TYPES_LIST: INarrationTypes[] = [
 ];
 
 export const MAX_SUBJECT_LIMIT = 30;
+
+export const REQUEST_HISTORY_PAGESIZES = [15, 20, 50, 100, 200];
