@@ -1,58 +1,66 @@
-'use client';
+import SelectPageSizeLimit from '@/atoms/SelectPageSizeLimit';
+import { PREFERENCE_COOKIES, REQUEST_HISTORY_PAGESIZES } from '@/constants';
+import { cookies } from 'next/headers';
+import { Suspense } from 'react';
+import LoadingBars from '@/atoms/LoadingBars';
+import RequestPagination from './RequestPagination';
+import RequestTableWrapper from './RequestTableWrapper';
 
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import RequestsPagination from './pagination/RequestsPagination';
-import { request_history_columns } from './requests-table/RequestColumns';
-import RequestTable from './requests-table/RequestTable';
-import { data_request_history } from '@/data/request-history.data';
-import { useCallback } from 'react';
-import SelectPageSizeLimit from './pagination/SlelectPageSizeLimit';
-import { REQUEST_HISTORY_PAGESIZES } from '@/constants';
+interface RequestHistoryProps {
+  searchParams:
+    | {
+        page?: string;
+        limit?: string;
+      }
+    | undefined;
+}
 
-// TODO static request history should be replaced with value from api
-// TODO get total records count from backend API.
+// component renders pagination, fetches data for current page and renders the table
 
-const RequestHistory = () => {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const page = Number(searchParams.get('page') || '1');
-  const pageSize = Number(searchParams.get('limit') || '15');
+const RequestHistory = async ({ searchParams }: RequestHistoryProps) => {
+  // check and get page size preference if saved in a cookie, otherwise defaults to first of page size options(20)
+  const storedPageSizeCookie = cookies().get(PREFERENCE_COOKIES.PAGE_SIZE);
+  let storedPageSize = REQUEST_HISTORY_PAGESIZES[0];
+  if (storedPageSizeCookie) {
+    storedPageSize = Number(storedPageSizeCookie.value);
+  }
 
-  //TODO Data should be fetched from the backend API
-  const paginatedResults = data_request_history.slice(
-    (page - 1) * pageSize,
-    page * pageSize
-  );
+  // get page number for search params if available, else default to page 1
+  const page = Number(searchParams?.page || '1');
+  const pageSize = Number(storedPageSize);
 
-  const handlePageSizeChange = useCallback(
-    (newPageSize: number) => {
-      const limitkey = 'limit';
-      const pagekey = 'page';
-      const newSearchParams = new URLSearchParams(searchParams || undefined);
-      newSearchParams.set(limitkey, String(newPageSize));
-      newSearchParams.set(pagekey, '1');
-      router.replace(`${pathname}?${newSearchParams.toString()}`);
-    },
-    [searchParams, pathname, router]
-  );
+  // render pagination, page size selection and request table components
   return (
-    <>
-      <div className="flex items-center justify-between mb-4">
-        <SelectPageSizeLimit
-          selectOptions={REQUEST_HISTORY_PAGESIZES}
-          pageSize={pageSize}
-          setPageSize={handlePageSizeChange}
-        ></SelectPageSizeLimit>
-        <RequestsPagination
-          totalCount={data_request_history.length}
-          pageSize={pageSize}
-          page={page}
-        ></RequestsPagination>
+    <div className="relative">
+      <div className="grid lg:grid-cols-2 gap-4 mb-4 py-4 sticky top-0 bg-white">
+        <div>
+          <SelectPageSizeLimit
+            cookie_key={PREFERENCE_COOKIES.PAGE_SIZE}
+            selectOptions={REQUEST_HISTORY_PAGESIZES}
+            pageSize={String(pageSize)}
+          ></SelectPageSizeLimit>
+        </div>
+
+        <div className="w-full flex justify-start lg:justify-end">
+          <Suspense fallback={<LoadingBars></LoadingBars>}>
+            <RequestPagination
+              pageSize={pageSize}
+              page={page}
+              searchParams={searchParams}
+            ></RequestPagination>
+          </Suspense>
+        </div>
       </div>
 
-      <RequestTable columns={request_history_columns} data={paginatedResults} />
-    </>
+      <Suspense
+        fallback={<LoadingBars className="my-20 mx-auto"></LoadingBars>}
+      >
+        <RequestTableWrapper
+          page={page}
+          pageSize={pageSize}
+        ></RequestTableWrapper>
+      </Suspense>
+    </div>
   );
 };
 

@@ -1,49 +1,40 @@
 'use client';
 
-import { IEditUserFormState, IUserInfo } from '@/types';
+import { IEditUserFormState } from '@/types';
 import React, { useEffect } from 'react';
 import FormSubmit from '@/atoms/formelements/FormSubmit';
-import { LS_KEY_USERSLIST, USER_ROLES_OPTIONS } from '@/constants';
 import { useFormState } from 'react-dom';
-import { readFromLocal, writeToLocal } from '@/lib/localstorageutils';
 import { toast } from 'sonner';
 import EditUserAction from '@/actions/admin-panel/edituser.action';
 import FormInput from '@/atoms/formelements/FormInput';
-import FormInputSelect from '@/atoms/formelements/FormInputSelect';
+import { IAdminUserInfo } from '@/types/api/admin';
+import { useUserRoleData } from '@/context/UserRoleContext';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface EditUserFormProps {
-  userInfo: IUserInfo;
+  userInfo: IAdminUserInfo;
 }
 
+// component that renders a form to update user role
+
 const EditUserForm = ({ userInfo }: EditUserFormProps) => {
+  const { roles } = useUserRoleData();
   const initialState: IEditUserFormState = { success: false, errors: {} };
-  const [formState, formAction] = useFormState(EditUserAction, initialState);
+  const bindedAction = EditUserAction.bind(null, userInfo.user_id);
+  const [formState, formAction] = useFormState(bindedAction, initialState);
 
   useEffect(() => {
     if (formState.success && formState.data) {
-      const storedUsers: IUserInfo[] | null =
-        readFromLocal(LS_KEY_USERSLIST) || null;
-
-      if (storedUsers) {
-        const userIndex = storedUsers.findIndex(
-          (user) => user.email === userInfo.email
-        );
-        if (userIndex !== -1) {
-          const oldUserData = storedUsers[userIndex];
-          storedUsers[userIndex] = { ...oldUserData, ...formState.data };
-          writeToLocal(LS_KEY_USERSLIST, storedUsers);
-          toast.success('User details updated successfully');
-        }
-      }
-
-      //TODO see if useRouter refresh() can be used during API integration
-
-      const timeoutId = setTimeout(() => {
-        window.location.reload();
-      }, 2000);
-      return () => clearTimeout(timeoutId);
+      toast.success('Role updated successfully');
     }
-  }, [formState.success, formState.data, userInfo.email]);
+  }, [formState.success, formState.data]);
 
   return (
     <div className="my-4 p-4 border-2 rounded-lg">
@@ -65,24 +56,40 @@ const EditUserForm = ({ userInfo }: EditUserFormProps) => {
           }}
         ></FormInput>
         <FormInput
-          id="fullname"
-          name="fullname"
+          id="name"
+          name="name"
           label="Name"
+          inputClassName="disabled:opacity-60"
           inputElementProps={{
             type: 'text',
             autoComplete: 'off',
-            defaultValue: userInfo.fullname,
+            defaultValue: userInfo.user_name,
+            disabled: true,
+            readOnly: true,
           }}
-          errorMsg={formState.errors.fullname?.join(',')}
         ></FormInput>
-        <FormInputSelect
-          id="userrole"
-          name="userrole"
-          label="Role"
-          optionsList={USER_ROLES_OPTIONS}
-          errorMsg={formState.errors.userrole?.join(', ')}
-          defaultValue={userInfo.userrole}
-        ></FormInputSelect>
+        <div className="w-full mb-1">
+          <label className="text-light-gray mb-2`" htmlFor={''}>
+            User Role
+          </label>
+          <Select name="userrole" defaultValue={userInfo.role_id}>
+            <SelectTrigger className="w-full !h-11 bg-white text-black">
+              <SelectValue placeholder="Select Role" />
+            </SelectTrigger>
+            <SelectContent id="userrole" className="bg-white text-black">
+              <SelectGroup>
+                {roles.map((option) => (
+                  <SelectItem value={option.id} key={option.id}>
+                    {option.name}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+          <p className="mb-2 text-red-800 dark:text-red-500 text-xs min-h-2">
+            {formState.errors.userrole?.join(',')}
+          </p>
+        </div>
 
         <p className="mb-2 text-red-800 dark:text-red-500 text-xs h-2">
           {formState.errors._form?.join(',')}

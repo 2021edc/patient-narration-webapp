@@ -1,227 +1,192 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
-import * as XLSX from 'xlsx';
+import React, { useCallback, useMemo, useState } from 'react';
 import NarrationDropdown from './NarrationDropdown';
 import MultiSelectDropdown from './MultiSelectDropdown';
-import SelectedPatientsTable from './SelectedPatientsTable';
+import SelectedSubjectsTable from './SelectedPatientsTable';
 import { toast } from 'sonner';
-import Link from 'next/link';
 import { MAX_SUBJECT_LIMIT } from '@/constants';
-import FullScreenSpinner from '@/atoms/FullScreenSpinner';
 import { Button } from '../ui/button';
-import { Input } from '../ui/input';
+import GenerateNarrationAction from '@/actions/narration/generatenarration.action';
+import Link from 'next/link';
+import {
+  ExtractedSubjects,
+  INarrationParsedData,
+  ISubjectData,
+} from '@/types/api/narration';
+import LoadingSpinner from '@/atoms/LoadingSpinner';
 
-export interface IPatientData {
-  patientId: string;
-  site: string;
-  informedConsentDate: string;
-  demographics: string[];
+interface NarrationInputsProps {
+  narrationData: INarrationParsedData;
+  narrationFile: File;
 }
 
-const NarrationInputs = () => {
-  const inputFileRef = useRef<HTMLInputElement>(null);
-  const [isFileParsing, setIsFileParsing] = useState(false);
+const NarrationInputs = ({
+  narrationData,
+  narrationFile,
+}: NarrationInputsProps) => {
+  const [loading, setLoading] = useState(false);
 
-  // datastructures for site,patient data from the input file
-  const [sites, setSites] = useState<string[]>([]); // unique site names
-  const [sitePatientMap, setSitePatientMap] = useState<
-    Record<string, string[]>
-  >({}); // mapping of unique site name to patiend Ids associated with that site
-  const [patientData, setPatientData] = useState<IPatientData[]>([]); // patient data from the input file
-  const [patientIds, setPatientIds] = useState<string[]>([]); // Patient Ids for the select patient menu
+  // function to extract all subjects from the parsed data from backend api
+  const allSubjectsData = useMemo(() => {
+    const result: ExtractedSubjects = {};
+    for (const [, subjects] of Object.entries(narrationData)) {
+      for (const [subjectId, subjectData] of Object.entries(subjects)) {
+        result[subjectId] = { ...subjectData };
+      }
+    }
+    return result;
+  }, [narrationData]);
 
-  // datastructures for user selected site, patient, narration options
+  const sites = Object.keys(narrationData); // Unique site values for Select site dropdown
+  const [subjectIds, setSubjectIds] = useState<string[]>([]); // Subject Ids for the select subject menu
+
   const [selectedSites, setSelectedSites] = useState<string[]>([]); // user selected sites
   const [selectedNarration, setSelectedNarration] = useState<string>(); // user selected narration
-  const [selectedPatientIds, setSelectedPatientIds] = useState<string[]>([]); // user selected patient Ids
+  const [selectedSubjectIds, setSelectedSubjectIds] = useState<string[]>([]); // user selected subject Ids
+  const [selectedSubjectsData, setSelectedSubjectsData] = useState<
+    ISubjectData[]
+  >([]);
 
   // Function executed to reset all the fields
-  const resetFields = () => {
-    setSites([]);
+  const resetInputs = useCallback(() => {
     setSelectedSites([]);
-    setSitePatientMap({});
-
-    setPatientData([]);
-    setPatientIds([]);
-    setSelectedPatientIds([]);
-
+    setSubjectIds([]);
+    setSelectedSubjectIds([]);
     setSelectedNarration(undefined);
-  };
+  }, []);
 
-  // Function executed to reset all the fields and input file
-  const handleReset = () => {
-    if (inputFileRef.current) {
-      inputFileRef.current.value = '';
-    }
-    resetFields();
-  };
-
-  // Function executed when a site is selected in dropdown
+  // Function executed when a site is selected in dropdown. add particular selected site to selected-sites list,
+  // and add all subjects for the selected site to subjects dropdown
   const handleSiteSelect = (selectedSite: string) => {
     setSelectedSites((prev) => [...prev, selectedSite]);
-    setPatientIds((prev) => [...prev, ...sitePatientMap[selectedSite]]);
+    setSubjectIds((prev) => {
+      const subjects = Object.keys(narrationData[selectedSite]);
+      return [...prev, ...subjects];
+    });
   };
 
-  // Function executed when a site is un-selected in dropdown
+  // Function executed when a site is un-selected in dropdown, removes site from selected-sites list
+  // removes all subject ids for that site from subjects dropdown
+  // removes all related subject ids if they are previously selected
   const handleSiteUnselect = (unselectedSite: string) => {
     setSelectedSites((prev) => [
       ...prev.filter((site) => site !== unselectedSite),
     ]);
-    const unselectPatientIds = sitePatientMap[unselectedSite];
-    setPatientIds((prev) =>
-      prev.filter((id) => !unselectPatientIds.includes(id))
+    const unselectSubjectIds = Object.keys(narrationData[unselectedSite]);
+    setSubjectIds((prev) =>
+      prev.filter((id) => !unselectSubjectIds.includes(id))
     );
-    setSelectedPatientIds((prev) =>
-      prev.filter((id) => !unselectPatientIds.includes(id))
+    setSelectedSubjectIds((prev) =>
+      prev.filter((id) => !unselectSubjectIds.includes(id))
     );
   };
 
-  // Function executed when a patient Id is selected in dropdown
-  const handlePatientSelect = (patientId: string) => {
-    if (selectedPatientIds.length < MAX_SUBJECT_LIMIT) {
-      setSelectedPatientIds((prev) => [...prev, patientId]);
+  // Function executed when a subject Id is selected in dropdown
+  // adds subject id to list of selected subjects
+  // adds subject data to list of selected subjects data
+  const handleSubjectSelect = (subjectId: string) => {
+    if (selectedSubjectIds.length < MAX_SUBJECT_LIMIT) {
+      setSelectedSubjectIds((prev) => [...prev, subjectId]);
+      const subjectData = allSubjectsData[subjectId];
+      setSelectedSubjectsData((prev) => [...prev, subjectData]);
     } else {
       toast.error(`Max subject limit: ${MAX_SUBJECT_LIMIT} reached`);
     }
   };
 
-  // Function executed when a patient Id is un-selected in dropdown
-  const handlePatientUnselect = (patientId: string) => {
-    setSelectedPatientIds((prev) => prev.filter((id) => id !== patientId));
+  // Function executed when a subject Id is un-selected in dropdown
+  // removes subject from selected subject list
+  // removes subject's data from selected subjects data list
+  const handleSubjectUnselect = (subjectId: string) => {
+    setSelectedSubjectIds((prev) => prev.filter((id) => id !== subjectId));
+    setSelectedSubjectsData((prev) =>
+      prev.filter((subject) => subject.subject !== subjectId)
+    );
   };
 
-  // Function executed when select all is pressed in site dropdown
+  // Function executed when select all/ reset is pressed in site dropdown
+  // when true - adds all site ids from dropdown to selected sites, adds all subjects to subjects dropdown
+  // whem false - removes all ids from selected sites, removes all subjects from dropdown
   const handleSiteSelectAll = (allSelected: boolean) => {
     if (allSelected) {
       setSelectedSites(sites);
       const ids: string[] = [];
       sites.forEach((site) => {
-        ids.push(...sitePatientMap[site]);
+        ids.push(...Object.keys(narrationData[site]));
       });
-
-      setPatientIds(ids);
+      setSubjectIds(ids);
     } else {
       setSelectedSites([]);
-      setPatientIds([]);
-      setSelectedPatientIds([]);
+      setSubjectIds([]);
+      setSelectedSubjectIds([]);
     }
   };
 
-  // Function executed when select all is pressed in patient dropdown
-  const handlePatientSelectAll = (allSelected: boolean) => {
+  // Function executed when select all or reset is pressed in subject dropdown
+  // when true - add first 30 subjects to selected subjects, add first 30 subject data to selected subjects data list
+  // when false- removes all subjects ids, subject data from selected subject ids and selected subject data list
+  const handleSubjectSelectAll = (allSelected: boolean) => {
     if (allSelected) {
-      setSelectedPatientIds(patientIds.slice(0, MAX_SUBJECT_LIMIT));
-      if (patientIds.length > MAX_SUBJECT_LIMIT) {
+      const selectedIds = subjectIds.slice(0, MAX_SUBJECT_LIMIT);
+      setSelectedSubjectIds(selectedIds);
+      const subjectDetails = selectedIds.map((id) => allSubjectsData[id]);
+      setSelectedSubjectsData(subjectDetails);
+      if (subjectIds.length > MAX_SUBJECT_LIMIT) {
         toast.message(`Max subject limit: ${MAX_SUBJECT_LIMIT} selected`);
       }
     } else {
-      setSelectedPatientIds([]);
+      setSelectedSubjectIds([]);
+      setSelectedSubjectsData([]);
     }
   };
 
-  // Function executed when file is uploaded
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    resetFields();
-    const file = event.target.files?.[0];
-    if (
-      file &&
-      file.type ===
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    ) {
-      setIsFileParsing(true);
-      readExcelFile(file);
-    } else {
-      toast.error('Please select a valid Excel file (.xlsx).');
+  // call server action to post the narration input file, list of selected subjects and narration type to backend api
+  // on successful response show toast message with link to request history page
+  const handleGenerateNarration = async () => {
+    setLoading(true);
+    if (!selectedNarration) {
+      toast.error('Select valid narration type');
+      return;
     }
-    setIsFileParsing(false);
-  };
-
-  // Function to parse the input xlsx file to read patient data from Base line sheet.
-  const readExcelFile = (file: File) => {
-    try {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        if (e.target?.result) {
-          const data = new Uint8Array(e.target.result as ArrayBuffer);
-          const workbook = XLSX.read(data, {
-            type: 'array',
-            cellDates: true,
-          });
-          const allPatientData: IPatientData[] = [];
-          const baseline_sheet_name = workbook.SheetNames[0];
-          const sheetDataJson = XLSX.utils.sheet_to_json(
-            workbook.Sheets[baseline_sheet_name],
-            {
-              header: 1,
-            }
-          );
-
-          // Set used to deduplicate subject ids from the document.
-          const deduplicationSet = new Set();
-
-          sheetDataJson.slice(2).forEach((row: any) => {
-            const patientId = row[2]; // Assuming patient IDs are in column B
-            if (patientId && !deduplicationSet.has(patientId)) {
-              const patientData: IPatientData = {
-                patientId: patientId.toString(),
-                site: row[3] ? row[3].toString() : 'NA',
-                informedConsentDate: row[4]
-                  ? new Date(row[4]).toLocaleDateString()
-                  : 'NA',
-                demographics: row.slice(14, 21),
-              };
-              deduplicationSet.add(patientId);
-              allPatientData.push(patientData);
-            }
-          });
-
-          const uniqueSites = Array.from(
-            new Set(allPatientData.map((patient) => patient.site))
-          );
-
-          const sitesPatientIdMap: Record<string, string[]> = {};
-          uniqueSites.forEach((site: string) => (sitesPatientIdMap[site] = []));
-          allPatientData.forEach((patient) => {
-            sitesPatientIdMap[patient.site].push(patient.patientId);
-          });
-
-          setPatientData(allPatientData);
-          setSites(uniqueSites);
-          setSitePatientMap(sitesPatientIdMap);
-        }
-      };
-      reader.readAsArrayBuffer(file);
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error(error.message);
-      }
-      toast.error('Error reading data from input file');
+    if (selectedSubjectIds.length === 0) {
+      toast.error('Select subjects');
+      return;
     }
+
+    const formData = new FormData();
+    formData.append('narration_file', narrationFile);
+    const { error, data } = await GenerateNarrationAction(
+      selectedNarration,
+      selectedSubjectIds.join(','),
+      formData
+    );
+    if (error) {
+      toast.error(error);
+    }
+    if (data) {
+      resetInputs();
+      toast.success('Narration generation process started.', {
+        duration: 3000,
+        className: 'w-max right-0',
+        action: (
+          <Button>
+            <Link href={'/requests'} className="text-sm">
+              View Status
+            </Link>
+          </Button>
+        ),
+      });
+    }
+    setLoading(false);
   };
 
   return (
-    <div className="p-4 text-center w-full max-w-[1400px] text-gray-900 dark:text-white">
-      <div className="mb-4 flex gap-4 items-center justify-center">
-        <Input
-          type="file"
-          onChange={handleFileChange}
-          accept=".xlsx"
-          className="rounded-lg border-2 w-80 !h-12 py-3 my-4"
-          ref={inputFileRef}
-        />
-        <Button onClick={handleReset} className="px-6">
-          Reset
-        </Button>
-      </div>
-      <div className="relative">
-        {isFileParsing && (
-          <FullScreenSpinner title="Processing input file"></FullScreenSpinner>
-        )}
-
-        <div className="flex items-start gap-8">
+    <div className="p-4 text-center w-full text-gray-900 dark:text-white">
+      <div className="w-full">
+        <div className="flex items-start gap-8 w-full">
           <NarrationDropdown
-            disabled={!inputFileRef.current?.value.trim()}
+            disabled={false}
             selectedNarration={selectedNarration}
             setSelectedNarration={setSelectedNarration}
           ></NarrationDropdown>
@@ -238,39 +203,45 @@ const NarrationInputs = () => {
           ></MultiSelectDropdown>
           <MultiSelectDropdown
             key={'subjectselection'}
-            optionsList={patientIds}
-            selectedOptions={selectedPatientIds}
-            onSelect={handlePatientSelect}
-            onUnselect={handlePatientUnselect}
-            onSelectAll={handlePatientSelectAll}
+            optionsList={subjectIds}
+            selectedOptions={selectedSubjectIds}
+            onSelect={handleSubjectSelect}
+            onUnselect={handleSubjectUnselect}
+            onSelectAll={handleSubjectSelectAll}
             selectAllLimit={
-              patientIds.length > 30 ? MAX_SUBJECT_LIMIT : patientIds.length
+              subjectIds.length > 30 ? MAX_SUBJECT_LIMIT : subjectIds.length
             }
-            columnName="Patients"
+            columnName="Subjects"
             disabled={selectedSites.length === 0}
           ></MultiSelectDropdown>
+          <Button
+            className="min-w-40 bg-dark-gray dark:bg-light-bg font-bold text-light-text dark:text-dark-text py-5 rounded-lg"
+            onClick={() => resetInputs()}
+          >
+            Reset
+          </Button>
         </div>
-        <SelectedPatientsTable
-          selectedPatientIds={selectedPatientIds}
-          patientData={patientData}
-        ></SelectedPatientsTable>
+        <SelectedSubjectsTable
+          selectedSubjectIds={selectedSubjectIds}
+          subjectData={selectedSubjectsData}
+        ></SelectedSubjectsTable>
         <div className="mt-10">
-          <button
-            className="bg-gray-900 dark:bg-white text-white px-4 py-2 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed"
+          <Button
+            className="min-w-48 bg-dark-gray dark:bg-white text-white px-4 py-5 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed"
             disabled={
               selectedSites.length === 0 ||
-              selectedPatientIds.length === 0 ||
-              selectedPatientIds.length > MAX_SUBJECT_LIMIT
+              selectedSubjectIds.length === 0 ||
+              selectedSubjectIds.length > MAX_SUBJECT_LIMIT ||
+              loading
             }
+            onClick={handleGenerateNarration}
           >
-            <Link
-              href={'/Patient_narration 10.16.29 AM.zip'}
-              download={'zip'}
-              className="dark:text-gray-900"
-            >
-              Generate Narration
-            </Link>
-          </button>
+            {loading ? (
+              <LoadingSpinner className="h-6 w-6"></LoadingSpinner>
+            ) : (
+              'Generate Narration'
+            )}
+          </Button>
         </div>
       </div>
     </div>

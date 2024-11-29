@@ -1,3 +1,5 @@
+// Reusable Meril logo element
+
 import ImageWrapper from './ImageWrapper';
 import MerillifeLogo from '@public/assets/MerilLife.png';
 

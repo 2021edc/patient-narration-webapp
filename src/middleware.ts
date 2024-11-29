@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { AUTH_COOKIE, USER_ROLE_COOKIE } from './constants';
+import { AUTH_COOKIE, USER_ROLE_COOKIE, USER_ROLES } from './constants';
+import { IStoredUserInfo } from './types/api/auth';
 
 const signinPagePath = '/login';
 
@@ -12,10 +13,16 @@ export const middleware = (request: NextRequest) => {
   }
 
   // Role based route protection for 'Admin' pages.
-  const role = cookies().get(USER_ROLE_COOKIE)?.value;
-  const nextPath = request.nextUrl.pathname;
-  if (nextPath.startsWith('/admin') && role !== 'admin') {
-    return NextResponse.redirect(new URL('/', request.nextUrl));
+  const roleCookie = cookies().get(USER_ROLE_COOKIE);
+  if (roleCookie) {
+    const roleData: IStoredUserInfo = JSON.parse(roleCookie.value);
+    const nextPath = request.nextUrl.pathname;
+    if (
+      nextPath.startsWith('/admin') &&
+      roleData.user_role !== USER_ROLES.ADMIN
+    ) {
+      return NextResponse.redirect(new URL('/', request.nextUrl));
+    }
   }
 };
 

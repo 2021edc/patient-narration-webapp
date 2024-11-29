@@ -4,11 +4,13 @@ import './globals.css';
 import ControlBar from '@/components/controlbar/ControlBar';
 import { Toaster } from '@/components/ui/sonner';
 import { Metadata } from 'next';
+import PageBreadCrumbs from '@/atoms/PageBreadCrumbs';
 
 const inter = Inter({ subsets: ['latin'] });
+const appName = process.env.NEXT_PUBLIC_APP_NAME;
 
 export const metadata: Metadata = {
-  title: 'Patient Narration Assistant',
+  title: appName ? appName : 'Patient Narration Assistant',
   description: 'Patient Narration Assistant by CognifAI',
 };
 
@@ -23,15 +25,17 @@ export default function RootLayout({
         className={`${inter.className} text-black bg-white dark:bg-gray-900 dark:text-white`}
       >
         <ControlBar></ControlBar>
+        <PageBreadCrumbs></PageBreadCrumbs>
         <main className="">{children}</main>
         <Toaster
           toastOptions={{
             duration: 1500,
             classNames: {
-              error: 'text-red-400  bg-gray-100',
-              success: 'text-green-400 bg-gray-100',
-              warning: 'text-yellow-400',
-              info: 'bg-blue-400',
+              toast: 'text-lg',
+              error: 'text-red-800 bg-white',
+              success: 'text-gray-900 bg-white',
+              warning: 'text-yellow-400 bg-white',
+              info: 'text-blue-700 bg-white',
             },
           }}
         ></Toaster>

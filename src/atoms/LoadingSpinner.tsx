@@ -1,3 +1,5 @@
+// Reusable loading spinner element.
+
 interface LoadingSpinnerProps {
   className?: string;
   color?: string;

@@ -20,6 +20,8 @@ interface MultiSelectDropdownProps {
   disabled?: boolean;
 }
 
+// reusable multi select drop down
+
 const MultiSelectDropdown = ({
   optionsList,
   selectedOptions,

@@ -1,3 +1,5 @@
+// Spinner element that will cover the full screen.
+
 import LoadingSpinner from './LoadingSpinner';
 
 interface FullScreenSpinnerProps {

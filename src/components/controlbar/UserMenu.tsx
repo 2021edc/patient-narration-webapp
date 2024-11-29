@@ -6,35 +6,48 @@ import {
   MenubarContent,
   MenubarItem,
 } from '../ui/menubar';
-import { AUTH_COOKIE, USER_ROLE_COOKIE, USER_ROLES } from '@/constants';
+import { USER_ROLE_COOKIE, USER_ROLES } from '@/constants';
 import LogoutForm from './LogoutForm';
 import Link from 'next/link';
 import { ChevronDownIcon } from '@radix-ui/react-icons';
+import { IStoredUserInfo } from '@/types/api/auth';
+
+// component renders navigation menu with items depending upon user access level
 
 const UserMenu = () => {
-  const isAdmin = cookies().get(USER_ROLE_COOKIE)?.value === USER_ROLES.ADMIN;
-
-  // TODO User email to be obtained from API during API integration
-  const userEmail = cookies().get(AUTH_COOKIE)?.value;
+  const userDataCookie = cookies().get(USER_ROLE_COOKIE);
+  let isAdmin;
+  let userEmail;
+  if (userDataCookie) {
+    const userData: IStoredUserInfo = JSON.parse(userDataCookie?.value);
+    isAdmin = userData.user_role === USER_ROLES.ADMIN;
+    userEmail = userData.email;
+  }
 
   return (
     <Menubar className="bg-white">
       <MenubarMenu>
         <MenubarTrigger className="bg-white w-[14rem]">
           <div className="flex items-center gap-4">
-            <p className="w-[10rem] overflow-hidden text-ellipsis">
+            <p className="w-[10rem] text-nowrap text-ellipsis overflow-hidden">
               {userEmail}
             </p>
             <ChevronDownIcon className="h-4 w-4"></ChevronDownIcon>
           </div>
         </MenubarTrigger>
 
-        <MenubarContent className="bg-white !w-[14rem]">
+        <MenubarContent className="bg-white !w-[14rem] z-50">
           <MenubarItem
             className="border-b py-2 dark:border-b-light-gray"
             asChild
           >
-            <Link href="/narrative">Patient Narration</Link>
+            <Link href="/narration-generation">Narration Generation</Link>
+          </MenubarItem>
+          <MenubarItem
+            className="border-b py-2 dark:border-b-light-gray"
+            asChild
+          >
+            <Link href="/requests">Requests History</Link>
           </MenubarItem>
           {isAdmin && (
             <MenubarItem

@@ -6,23 +6,27 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from '@/components/ui/dialog';
-import { Pencil1Icon } from '@radix-ui/react-icons';
 import EditUserForm from './EditUserForm';
-import { IUserInfo } from '@/types';
 import EditUserPasswordForm from './EditUserPasswordForm';
+import { IAdminUserInfo } from '@/types/api/admin';
 
 interface EditUserFormProps {
-  userInfo: IUserInfo;
+  userInfo: IAdminUserInfo | null;
+  open: boolean;
+  onOpenChange: () => void;
 }
 
-const EditUserDialog = ({ userInfo }: EditUserFormProps) => {
+// component that renders a dialog with two different forms for updating user role and generating password
+
+const EditUserDialog = ({
+  userInfo,
+  open,
+  onOpenChange,
+}: EditUserFormProps) => {
+  if (!userInfo) return <></>;
   return (
-    <Dialog>
-      <DialogTrigger>
-        <Pencil1Icon className="h-6 w-6" />
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-white dark:bg-dark-gray h-[90vh] overflow-y-scroll">
         <DialogHeader>
           <DialogTitle>Edit User</DialogTitle>
