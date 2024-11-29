@@ -1,3 +1,5 @@
+// Reusable element to display images responsively.
+
 import Image, { StaticImageData } from 'next/image';
 
 interface ImageWrapperProps {
@@ -6,6 +8,7 @@ interface ImageWrapperProps {
   imageSize: string;
   sizes?: string;
   className?: string;
+  imageProps?: React.ComponentPropsWithRef<typeof Image>;
 }
 
 const ImageWrapper = ({
@@ -14,6 +17,7 @@ const ImageWrapper = ({
   imageSize,
   sizes = '(max-width:768px)90vw,50vw',
   className = '',
+  imageProps = undefined,
 }: ImageWrapperProps) => {
   return (
     <div className={`${imageSize} relative`}>
@@ -23,6 +27,7 @@ const ImageWrapper = ({
         className={`${className}`}
         sizes={`${sizes}`}
         fill
+        {...imageProps}
       />
     </div>
   );

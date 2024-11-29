@@ -19,6 +19,8 @@ interface DropdownFilterProps<TData> {
   inputClassName?: string;
 }
 
+// Reusable dropdown filter component, takes a column object/
+
 const DropdownFilter = <TData,>({
   column,
   id,
@@ -30,6 +32,8 @@ const DropdownFilter = <TData,>({
 }: DropdownFilterProps<TData>) => {
   const columnFilterValue = column?.getFilterValue();
   const isAllOption = !columnFilterValue;
+
+  // Function to get the list of unique values in the provided column
   const uniqueValues = useMemo(
     () => (column ? Array.from(column?.getFacetedUniqueValues().keys()) : []),
     [column]

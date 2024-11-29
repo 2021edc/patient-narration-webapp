@@ -1,65 +1,77 @@
+'use client';
+
 import UpdatePasswordAction from '@/actions/admin-panel/updatepassword.action';
-import FormInputPassword from '@/atoms/formelements/FormInputPassword';
 import FormSubmit from '@/atoms/formelements/FormSubmit';
-import { IUpdatePasswordFormState, IUserInfo } from '@/types';
+import { IUpdatePasswordFormState } from '@/types';
+import { IAdminUserInfo } from '@/types/api/admin';
 import { useEffect } from 'react';
 import { useFormState } from 'react-dom';
 import { toast } from 'sonner';
+import { CopyIcon } from '@radix-ui/react-icons';
 
 interface EditUserPasswordFormProps {
-  userInfo: IUserInfo;
+  userInfo: IAdminUserInfo;
 }
+
+// component renders a form to generate password and display newly generated password
 
 const EditUserPasswordForm = ({ userInfo }: EditUserPasswordFormProps) => {
   const initialState: IUpdatePasswordFormState = {
     success: false,
     errors: {},
-    data: {},
   };
-  const bindedAction = UpdatePasswordAction.bind(null, userInfo.fullname);
+  const bindedAction = UpdatePasswordAction.bind(null, userInfo.user_id);
   const [formState, formAction] = useFormState(bindedAction, initialState);
 
   useEffect(() => {
     if (formState.success && formState.data) {
-      toast.success(
-        `Password updated successfully for "${formState.data.fullname}"`
-      );
-
-      //TODO see if useRouter refresh() can be used during API integration
-      const timeoutId = setTimeout(() => {
-        window.location.reload();
-      }, 2000);
-      return () => clearTimeout(timeoutId);
+      toast.success('New password generated.');
     }
   }, [formState.success, formState.data]);
 
+  const handleCopy = (password: string | undefined) => {
+    if (password) {
+      navigator.clipboard.writeText(password);
+      toast.success('Password copied');
+    }
+  };
+
   return (
     <div className="my-4 p-4 border-2 rounded-lg">
-      <h3 className="text-lg font-semibold pb-2 border-b-2">Reset Password</h3>
-      <form autoComplete="off" action={formAction}>
-        <FormInputPassword
-          id="password"
-          name="password"
-          label="Password"
-          inputElementProps={{ autoComplete: 'off' }}
-          errorMsg={formState.errors.password?.join(',')}
-        ></FormInputPassword>
+      <h3 className="text-lg font-semibold pb-2 border-b-2">
+        Generate New Password
+      </h3>
+      <div className="flex flex-col gap-4 my-4">
+        <form autoComplete="off" action={formAction}>
+          <FormSubmit className="!px-4">Generate New Password</FormSubmit>
+        </form>
+        <div className="w-full mb-1">
+          <label htmlFor="password" className="text-light-gray mb-2">
+            New Password
+          </label>
+          <div className="relative">
+            <input
+              id="password"
+              name="password"
+              autoComplete="new-password"
+              readOnly
+              value={formState.data ? formState.data.newPassword : ''}
+              className="w-full p-2 border text-dark-gray border-light-gray rounded-lg"
+            />
+            <button
+              className="absolute top-1/4 right-2 disabled:opacity-40"
+              disabled={!formState.data?.newPassword?.length}
+              onClick={() => handleCopy(formState.data?.newPassword)}
+            >
+              <CopyIcon className="h-6 w-6 text-gray-700"></CopyIcon>
+            </button>
+          </div>
+        </div>
 
-        <FormInputPassword
-          id="confirmpassword"
-          name="confirmpassword"
-          label="Confirm Password"
-          inputElementProps={{ autoComplete: 'off' }}
-          errorMsg={formState.errors.confirmpassword?.join(',')}
-        ></FormInputPassword>
         <p className="mb-2 text-red-800 dark:text-red-500 text-xs h-2">
           {formState.errors._form?.join(',')}
         </p>
-
-        <div className="flex items-center justify-end gap-2">
-          <FormSubmit>Reset</FormSubmit>
-        </div>
-      </form>
+      </div>
     </div>
   );
 };

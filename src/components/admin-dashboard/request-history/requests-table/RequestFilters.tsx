@@ -3,6 +3,8 @@ import { Button } from '@/components/ui/button';
 import { ColumnFiltersState, SortingState, Table } from '@tanstack/react-table';
 import DropdownFilter from './DropdownFilter';
 
+// Component with filter input fields for the columns in Request History table
+
 interface RequestFiltersProps<TData> {
   table: Table<TData>;
   setColumnFilters: React.Dispatch<React.SetStateAction<ColumnFiltersState>>;
@@ -17,9 +19,24 @@ const RequestFilters = <TData,>({
   return (
     <div>
       <h4 className="text-sm">Filters</h4>
-      <div className="grid grid-cols-3 lg:grid-cols-7 gap-1 lg:gap-4">
+      <div className="grid grid-cols-3 lg:grid-cols-8 gap-1 lg:gap-4">
+        <FormInput
+          id="idfilter"
+          name="idfilter"
+          label="Request ID"
+          inputClassName="!p-[6px]"
+          labelClassName="mb-1 text-xs"
+          onChange={(event) =>
+            table.getColumn('narration_id')?.setFilterValue(event.target.value)
+          }
+          inputElementProps={{
+            value:
+              (table.getColumn('narration_id')?.getFilterValue() as string) ??
+              '',
+          }}
+        ></FormInput>
         <DropdownFilter
-          column={table.getColumn('study')}
+          column={table.getColumn('narration_type')}
           id={'studyfilter'}
           name={'studyfilter'}
           label={'Study'}
@@ -31,10 +48,15 @@ const RequestFilters = <TData,>({
           inputClassName="!p-[6px]"
           labelClassName="mb-1 text-xs"
           onChange={(event) =>
-            table.getColumn('sites')?.setFilterValue(event.target.value)
+            table
+              .getColumn('narration_sites')
+              ?.setFilterValue(event.target.value)
           }
           inputElementProps={{
-            value: (table.getColumn('sites')?.getFilterValue() as string) ?? '',
+            value:
+              (table
+                .getColumn('narration_sites')
+                ?.getFilterValue() as string) ?? '',
           }}
         ></FormInput>
         <FormInput
@@ -44,11 +66,15 @@ const RequestFilters = <TData,>({
           inputClassName="!p-[6px]"
           labelClassName="mb-1 text-xs"
           onChange={(event) =>
-            table.getColumn('subjects')?.setFilterValue(event.target.value)
+            table
+              .getColumn('narration_subjects')
+              ?.setFilterValue(event.target.value)
           }
           inputElementProps={{
             value:
-              (table.getColumn('subjects')?.getFilterValue() as string) ?? '',
+              (table
+                .getColumn('narration_subjects')
+                ?.getFilterValue() as string) ?? '',
           }}
         ></FormInput>
         <FormInput
@@ -58,11 +84,11 @@ const RequestFilters = <TData,>({
           inputClassName="!p-[6px]"
           labelClassName="mb-1 text-xs"
           onChange={(event) =>
-            table.getColumn('createdOn')?.setFilterValue(event.target.value)
+            table.getColumn('created_on')?.setFilterValue(event.target.value)
           }
           inputElementProps={{
             value:
-              (table.getColumn('createdOn')?.getFilterValue() as string) ?? '',
+              (table.getColumn('created_on')?.getFilterValue() as string) ?? '',
           }}
         ></FormInput>
         <FormInput
@@ -72,11 +98,15 @@ const RequestFilters = <TData,>({
           inputClassName="!p-[6px]"
           labelClassName="mb-1 text-xs"
           onChange={(event) =>
-            table.getColumn('ipAddress')?.setFilterValue(event.target.value)
+            table
+              .getColumn('user_ip_address')
+              ?.setFilterValue(event.target.value)
           }
           inputElementProps={{
             value:
-              (table.getColumn('ipAddress')?.getFilterValue() as string) ?? '',
+              (table
+                .getColumn('user_ip_address')
+                ?.getFilterValue() as string) ?? '',
           }}
         ></FormInput>
         <DropdownFilter
@@ -86,7 +116,7 @@ const RequestFilters = <TData,>({
           label={'Status'}
         ></DropdownFilter>
 
-        <div className="flex items-center">
+        <div className="flex items-end lg:items-center">
           <Button
             onClick={() => {
               setColumnFilters([]);

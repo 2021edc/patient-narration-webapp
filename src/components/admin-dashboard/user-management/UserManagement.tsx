@@ -1,65 +1,64 @@
-'use client';
+import { API_METHODS, CACHE_TAGS, USER_ROLE_COOKIE } from '@/constants';
+import {
+  api_admin_get_roles_list,
+  api_admin_get_users,
+} from '@/utils/url-helper';
+import UserTableColumns from './user-table/UserTableColumns';
+import UserRoleProvider from '@/context/UserRoleContext';
+import makeApiRequest from '@/services/makeApiRequest';
+import { getTokenServerSide } from '@/services/getTokenServerSide';
+import ErrorText from '@/atoms/ErrorText';
+import { cookies } from 'next/headers';
+import handleUnauthorizedStatusCode from '@/services/handleStatusCode';
 
-import { useEffect, useState } from 'react';
-import UserTable from './UserTable';
-import { IUserInfo } from '@/types';
-import { readFromLocal } from '@/lib/localstorageutils';
-import { LS_KEY_USERSLIST } from '@/constants';
-import AddUserForm from './AddUserForm';
-import { ReloadIcon } from '@radix-ui/react-icons';
+const UserManagement = async () => {
+  const currentUserCookie = cookies().get(USER_ROLE_COOKIE);
+  let currentUserEmail = '';
+  if (currentUserCookie && currentUserCookie.value) {
+    currentUserEmail = JSON.parse(currentUserCookie.value).email;
+  }
 
-const UserManagement = () => {
-  const [fullUserList, setFullUserList] = useState<IUserInfo[]>([]);
-  const [userList, setUserList] = useState<IUserInfo[]>([]);
+  // make backend api call to fetch user role list
+  const { data, error, statusCode } = await makeApiRequest(
+    api_admin_get_roles_list(),
+    API_METHODS.GET,
+    {},
+    getTokenServerSide()
+  );
+  // make backend api call to fetch users list
+  const {
+    data: userData,
+    error: userError,
+    statusCode: userStatusCode,
+  } = await makeApiRequest(
+    api_admin_get_users(),
+    API_METHODS.GET,
+    {},
+    getTokenServerSide(),
+    CACHE_TAGS.ADMIN_USER_LIST
+  );
 
-  const fetchUsersList = () => {
-    const storedUsers = readFromLocal(LS_KEY_USERSLIST);
-    if (storedUsers) {
-      setFullUserList([...storedUsers]);
-      setUserList([...storedUsers]);
-    }
-  };
-
-  // TODO replace with call to backend api to get users list
-  useEffect(() => {
-    fetchUsersList();
-  }, []);
-
-  const handleRefresh = () => {
-    fetchUsersList();
-  };
-
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const searchQuery = e.target.value;
-    if (searchQuery.length > 0) {
-      const filteredUsers = fullUserList.filter((user) =>
-        user.fullname.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-      setUserList([...filteredUsers]);
-    } else {
-      setUserList([...fullUserList]);
-    }
-  };
   return (
     <div className="min-h-screen flex flex-col">
       <div className="w-full mx-auto p-6 min-h-[calc(100vh-10rem)]">
-        <div className="flex items-center gap-4 w-full my-6">
-          <input
-            type="text"
-            onChange={handleSearch}
-            placeholder="Search users..."
-            className="border p-2 rounded-lg w-1/2 border-dark-gray dark:border-light-text"
-          />
-          <AddUserForm></AddUserForm>
-          <button
-            className="flex gap-1 py-2 px-4 items-center dark:bg-gray-400 dark:hover:bg-gray-100 dark:text-black bg-gray-700 text-white rounded-md hover:bg-gray-600"
-            onClick={handleRefresh}
-          >
-            <ReloadIcon className="h-4 w-4"></ReloadIcon>
-            Refresh
-          </button>
-        </div>
-        <UserTable userList={userList} />
+        <UserRoleProvider roles={data ? data : []}>
+          {data && (
+            <UserTableColumns
+              currentUserEmail={currentUserEmail}
+              data={userData ? userData : []}
+            />
+          )}
+        </UserRoleProvider>
+        {error && (
+          <ErrorText
+            message={handleUnauthorizedStatusCode(statusCode) || error}
+          ></ErrorText>
+        )}
+        {userError && (
+          <ErrorText
+            message={handleUnauthorizedStatusCode(userStatusCode) || userError}
+          ></ErrorText>
+        )}
       </div>
     </div>
   );

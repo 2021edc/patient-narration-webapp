@@ -1,6 +1,6 @@
 'use client';
 
-import { type ReactNode, useCallback } from 'react';
+import { type ReactNode } from 'react';
 import {
   Pagination,
   PaginationContent,
@@ -10,35 +10,42 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination';
-import { usePathname, useSearchParams } from 'next/navigation';
+import {
+  DoubleArrowLeftIcon,
+  DoubleArrowRightIcon,
+} from '@radix-ui/react-icons';
+import { usePathname } from 'next/navigation';
 
-export interface RequestsPaginationProps {
+export interface PaginateProps {
+  searchParams: { page?: string; limit?: string } | undefined;
   totalCount: number;
   pageSize: number;
   page: number;
 }
 
-const RequestsPagination = ({
+const Paginate = ({
+  searchParams,
   pageSize,
   totalCount,
   page,
-}: RequestsPaginationProps) => {
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+}: PaginateProps) => {
+  const pathName = usePathname();
 
-  const totalPageCount = Math.ceil(totalCount / pageSize);
+  // Calculating the no of pages from items per page and total items
+  const totalPageCount = totalCount > 0 ? Math.ceil(totalCount / pageSize) : 1;
 
-  const buildLink = useCallback(
-    (newPage: number) => {
-      const key = 'page';
-      if (!searchParams) return `${pathname}?${key}=${newPage}`;
-      const newSearchParams = new URLSearchParams(searchParams);
-      newSearchParams.set(key, String(newPage));
-      return `${pathname}?${newSearchParams.toString()}`;
-    },
-    [searchParams, pathname]
-  );
+  // Generating page links using search params object.
+  const buildLink = (newPage: number) => {
+    const pagekey = 'page';
+    const limitkey = 'limit';
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.set(pagekey, String(newPage));
+    newSearchParams.set(limitkey, String(pageSize));
+    return `${pathName}?${newSearchParams.toString()}`;
+  };
 
+  // Function that will create the page links in the pagination. max visible page links is 5.
+  // More than 5 pages will be dispalyed with ellipsis
   const renderPageNumbers = () => {
     const items: ReactNode[] = [];
     const maxVisiblePages = 5;
@@ -102,7 +109,6 @@ const RequestsPagination = ({
         </PaginationItem>
       );
     }
-
     return items;
   };
 
@@ -110,6 +116,16 @@ const RequestsPagination = ({
     <div className="flex flex-col md:flex-row items-center gap-">
       <Pagination>
         <PaginationContent className="max-sm:gap-0">
+          <PaginationItem>
+            <PaginationLink
+              href={buildLink(1)}
+              aria-disabled={page === 1}
+              className={`px-4 flex gap-2 items-center w-max ${page === 1 ? 'pointer-events-none opacity-50' : undefined}`}
+            >
+              <DoubleArrowLeftIcon className="h-4 w-4" />
+              <span>First</span>
+            </PaginationLink>
+          </PaginationItem>
           <PaginationItem>
             <PaginationPrevious
               href={buildLink(Math.max(page - 1, 1))}
@@ -133,10 +149,20 @@ const RequestsPagination = ({
               }
             />
           </PaginationItem>
+          <PaginationItem>
+            <PaginationLink
+              href={buildLink(totalPageCount)}
+              aria-disabled={page === totalPageCount}
+              className={`px-4 flex gap-2 items-center w-max ${page === totalPageCount ? 'pointer-events-none opacity-50' : undefined}`}
+            >
+              <span>Last</span>
+              <DoubleArrowRightIcon className="h-4 w-4" />
+            </PaginationLink>
+          </PaginationItem>
         </PaginationContent>
       </Pagination>
     </div>
   );
 };
 
-export default RequestsPagination;
+export default Paginate;

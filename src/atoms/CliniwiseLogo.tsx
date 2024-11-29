@@ -1,3 +1,5 @@
+// Reusable CliniWise logo element
+
 import ImageWrapper from './ImageWrapper';
 import CliniwiseLogoIMage from '@public/assets/CliniWiseAI.png';
 

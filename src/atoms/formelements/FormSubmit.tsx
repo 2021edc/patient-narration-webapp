@@ -1,7 +1,10 @@
 'use client';
 
+// Reusable form submit button, utilizes form submit status to show loading state.
+
 import { useFormStatus } from 'react-dom';
 import LoadingSpinner from '../LoadingSpinner';
+import { Button } from '@/components/ui/button';
 
 interface FormSubmitProps {
   children?: React.ReactNode | string;
@@ -15,17 +18,17 @@ const FormSubmit = ({
   const { pending } = useFormStatus();
 
   return (
-    <button
+    <Button
       type="submit"
       disabled={pending}
-      className={`min-w-40 bg-dark-gray dark:bg-light-bg font-bold text-light-text dark:text-dark-text py-2 rounded-lg flex justify-center items-center ${className}`}
+      className={`min-w-40 font-bold flex justify-center items-center ${className}`}
     >
       {pending ? (
         <LoadingSpinner className="h-6 w-6"></LoadingSpinner>
       ) : (
         children
       )}
-    </button>
+    </Button>
   );
 };
 

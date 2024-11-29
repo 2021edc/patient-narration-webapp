@@ -1,9 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { PlusIcon } from '@radix-ui/react-icons';
 import FormSubmit from '@/atoms/formelements/FormSubmit';
-import { LS_KEY_USERSLIST, USER_ROLES_OPTIONS } from '@/constants';
 import {
   Dialog,
   DialogContent,
@@ -15,39 +13,39 @@ import {
 import { useFormState } from 'react-dom';
 import { IAddNewUserFormState } from '@/types';
 import AddNewUserAction from '@/actions/admin-panel/addnewuser.action';
-import { readFromLocal, writeToLocal } from '@/lib/localstorageutils';
 import { toast } from 'sonner';
 import FormInput from '@/atoms/formelements/FormInput';
 import FormInputPassword from '@/atoms/formelements/FormInputPassword';
-import FormInputSelect from '@/atoms/formelements/FormInputSelect';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { useUserRoleData } from '@/context/UserRoleContext';
+
+// component that renders a form in dialog to add new user.
 
 const AddUserForm = () => {
+  const { roles } = useUserRoleData();
   const [showDialog, setShowDialog] = useState(false);
   const initialState: IAddNewUserFormState = { success: false, errors: {} };
+
   const [formState, formAction] = useFormState(AddNewUserAction, initialState);
 
   useEffect(() => {
-    if (formState.success && formState.data) {
-      const storedUsers = readFromLocal(LS_KEY_USERSLIST) || null;
-      if (storedUsers)
-        writeToLocal(LS_KEY_USERSLIST, [...storedUsers, formState.data]);
-      else writeToLocal(LS_KEY_USERSLIST, [formState.data]);
-
+    if (formState.success) {
       toast.success('User added successfully');
-
-      //TODO see if useRouter refresh() can be used during API integration
-      const timeoutId = setTimeout(() => {
-        window.location.reload();
-      }, 2000);
-      return () => clearTimeout(timeoutId);
+      setShowDialog((prev) => !prev);
     }
-  }, [formState.success, formState.data]);
+  }, [formState.success]);
 
   return (
     <Dialog open={showDialog} onOpenChange={setShowDialog}>
-      <DialogTrigger className="flex gap-1 py-2 px-4 items-center dark:bg-gray-400 dark:hover:bg-gray-100 dark:text-black bg-gray-700 text-white rounded-md hover:bg-gray-600">
-        <PlusIcon className="h-4 w-4 mr-2" />
-        Add
+      <DialogTrigger className="text-base font-semibold w-full flex gap-1 p-3 justify-center items-center bg-dark-bg rounded-md text-white">
+        Add New User
       </DialogTrigger>
       <DialogContent className="bg-white dark:bg-dark-gray">
         <DialogHeader>
@@ -58,17 +56,17 @@ const AddUserForm = () => {
         </DialogHeader>
         <form className="p-2" action={formAction} autoComplete="off">
           <FormInput
-            id="fullname"
-            name="fullname"
+            id="name"
+            name="name"
             label="Name"
             inputElementProps={{ type: 'text', autoComplete: 'off' }}
-            errorMsg={formState.errors.fullname?.join(',')}
+            errorMsg={formState.errors.name?.join(',')}
           ></FormInput>
           <FormInput
             id="email"
             name="email"
             label="Email"
-            inputElementProps={{ type: 'email', autoComplete: 'off' }}
+            inputElementProps={{ type: 'email', autoComplete: 'new-email' }}
             errorMsg={formState.errors.email?.join(',')}
           ></FormInput>
 
@@ -76,7 +74,7 @@ const AddUserForm = () => {
             id="password"
             name="password"
             label="Password"
-            inputElementProps={{ autoComplete: 'off' }}
+            inputElementProps={{ autoComplete: 'new-password' }}
             errorMsg={formState.errors.password?.join(',')}
           ></FormInputPassword>
 
@@ -84,16 +82,32 @@ const AddUserForm = () => {
             id="confirmpassword"
             name="confirmpassword"
             label="Confirm Password"
-            inputElementProps={{ autoComplete: 'off' }}
+            inputElementProps={{ autoComplete: 'new-password' }}
             errorMsg={formState.errors.confirmpassword?.join(',')}
           ></FormInputPassword>
-          <FormInputSelect
-            id="userrole"
-            name="userrole"
-            label="Role"
-            optionsList={USER_ROLES_OPTIONS}
-            errorMsg={formState.errors.userrole?.join(', ')}
-          ></FormInputSelect>
+
+          <div className="w-full mb-1">
+            <label className="text-light-gray mb-2`" htmlFor={''}>
+              User Role
+            </label>
+            <Select name="userrole">
+              <SelectTrigger className="w-full !h-11 bg-white text-black">
+                <SelectValue placeholder="Select Role" />
+              </SelectTrigger>
+              <SelectContent id="userrole" className="bg-white text-black">
+                <SelectGroup>
+                  {roles.map((option) => (
+                    <SelectItem value={option.id} key={option.id}>
+                      {option.name}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+            <p className="mb-2 text-red-800 dark:text-red-500 text-xs min-h-2">
+              {formState.errors.userrole?.join(',')}
+            </p>
+          </div>
 
           <p className="mb-2 text-red-800 dark:text-red-500 text-xs h-2">
             {formState.errors._form?.join(',')}

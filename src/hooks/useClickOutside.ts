@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 
+// hook used to watch for clicks outside a given element ref
 const useClickOutside = (
   containerRef: React.RefObject<HTMLElement>,
   callback: () => void

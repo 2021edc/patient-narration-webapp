@@ -1,4 +1,4 @@
-import { IPatientData } from './NarrationInputs';
+import { ISubjectData } from '@/types/api/narration';
 import {
   Table,
   TableBody,
@@ -9,25 +9,27 @@ import {
 } from '../ui/table';
 
 const TABLE_HEADERS = [
-  'Patient ID',
+  'Subject ID',
   'Site',
   'Date of Informed Consent',
   'Demographics',
 ];
 
-interface SelectedPatientsTableProps {
-  patientData: IPatientData[];
-  selectedPatientIds: string[];
+// component renders table to display selected subjects data in the UI
+
+interface SelectedSubjectsTableProps {
+  subjectData: ISubjectData[];
+  selectedSubjectIds: string[];
 }
 
-const SelectedPatientsTable = ({
-  patientData,
-  selectedPatientIds,
-}: SelectedPatientsTableProps) => {
+const SelectedSubjectsTable = ({
+  subjectData,
+  selectedSubjectIds,
+}: SelectedSubjectsTableProps) => {
   return (
     <div className="my-10 border rounded-md">
       <h2 className="text-xl font-semibold text-gray-500 my-4">
-        Selected Patient Details
+        Selected Subject Details
       </h2>
       <div className="max-h-[60vh] relative overflow-auto">
         <Table>
@@ -42,16 +44,20 @@ const SelectedPatientsTable = ({
           </TableHeader>
 
           <TableBody>
-            {selectedPatientIds.map((patientId) => {
-              const data = patientData.find(
-                (item) => item.patientId === patientId
+            {selectedSubjectIds.map((subjectId) => {
+              const data = subjectData.find(
+                (item) => item.subject === subjectId
               );
               return (
-                <TableRow key={data?.patientId} className="text-left">
-                  <TableCell>{data?.patientId.trim()}</TableCell>
+                <TableRow key={data?.subject} className="text-left">
+                  <TableCell>{data?.subject.trim()}</TableCell>
                   <TableCell>{data?.site}</TableCell>
-                  <TableCell>{data?.informedConsentDate.trim()}</TableCell>
-                  <TableCell>{data?.demographics.join(', ').trim()}</TableCell>
+                  <TableCell>
+                    {data?.consent_date
+                      ? new Date(data?.consent_date).toLocaleDateString()
+                      : 'NA'}
+                  </TableCell>
+                  <TableCell>{data?.demographics}</TableCell>
                 </TableRow>
               );
             })}
@@ -62,4 +68,4 @@ const SelectedPatientsTable = ({
   );
 };
 
-export default SelectedPatientsTable;
+export default SelectedSubjectsTable;

@@ -1,9 +1,5 @@
-export interface IUserInfo {
-  fullname: string;
-  email: string;
-  userrole: string;
-  createdOn: string;
-}
+import { ISigninResponse } from './api/auth';
+import { INarrationParsedData } from './api/narration';
 
 export interface INarrationTypes {
   name: string;
@@ -12,37 +8,36 @@ export interface INarrationTypes {
 
 export interface ISigninFormState {
   success: boolean;
-  errors: {
+  errors?: {
     email?: string[];
     password?: string[];
     _form?: string[];
   };
+  isActiveSession?: boolean;
+  data?: ISigninResponse;
 }
 
 export interface IAddNewUserFormState {
   success: boolean;
   errors: {
-    fullname?: string[];
+    name?: string[];
     email?: string[];
     password?: string[];
     confirmpassword?: string[];
     userrole?: string[];
     _form?: string[];
+    errorStatusCode?: number;
   };
-  data?: IUserInfo;
 }
 
 export interface IEditUserFormState {
   success: boolean;
   errors: {
-    fullname?: string[];
-    password?: string[];
-    confirmpassword?: string[];
     userrole?: string[];
     _form?: string[];
+    errorStatusCode?: number;
   };
   data?: {
-    fullname: string;
     userrole: string;
   };
 }
@@ -53,8 +48,17 @@ export interface IUpdatePasswordFormState {
     password?: string[];
     confirmpassword?: string[];
     _form?: string[];
+    errorStatusCode?: number;
   };
   data?: {
-    fullname?: string;
+    newPassword?: string;
   };
+}
+
+export interface IUploadNarrationFileFormState {
+  success: boolean;
+  errors: {
+    _form?: string[];
+  };
+  data?: INarrationParsedData;
 }

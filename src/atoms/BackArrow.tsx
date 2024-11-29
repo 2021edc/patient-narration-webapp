@@ -1,5 +1,7 @@
 'use client';
 
+// Back arrow, when clicked will navigate to the previous page in history stack.
+
 import { useRouter } from 'next/navigation';
 import { ArrowLeftIcon } from '@radix-ui/react-icons';
 

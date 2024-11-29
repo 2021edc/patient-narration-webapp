@@ -1,33 +1,50 @@
 'use server';
 
+import { API_METHODS } from '@/constants';
+import { getTokenServerSide } from '@/services/getTokenServerSide';
+import handleUnauthorizedStatusCode from '@/services/handleStatusCode';
+import makeApiRequest from '@/services/makeApiRequest';
 import { IUpdatePasswordFormState } from '@/types';
-import { z } from 'zod';
-
-const validationSchema = z
-  .object({
-    password: z.string().min(8, { message: 'Minimum 8 characters' }),
-    confirmpassword: z.string().min(8, { message: 'Minimum 8 characters' }),
-  })
-  .refine((data) => data.password === data.confirmpassword, {
-    message: `Passwords don't match`,
-    path: ['confirmpassword'],
-  });
+import { api_admin_update_user_password } from '@/utils/url-helper';
+import { redirect } from 'next/navigation';
 
 const UpdatePasswordAction = async (
-  fullname: string,
-  formState: IUpdatePasswordFormState,
-  formData: FormData
+  user_id: string
 ): Promise<IUpdatePasswordFormState> => {
-  const validation = validationSchema.safeParse(
-    Object.fromEntries(formData.entries())
-  );
-  if (!validation.success) {
-    return { success: false, errors: validation.error.flatten().fieldErrors };
+  // return error if user id is not provided.
+  if (!user_id) return { success: false, errors: { _form: ['User is null'] } };
+
+  // Check for auth token, if not present redirect to login
+  const authToken = getTokenServerSide();
+  if (!authToken) {
+    redirect('/login');
   }
 
-  // TODO Make api backend call to update the password.
+  // make api call to generate new password for the user id
+  const { data, error, statusCode } = await makeApiRequest(
+    api_admin_update_user_password(),
+    API_METHODS.PUT,
+    { user_id },
+    authToken
+  );
 
-  return { success: true, errors: {}, data: { fullname } };
+  // Return API errors to the UI
+  if (error) {
+    return {
+      success: false,
+      errors: {
+        _form: [handleUnauthorizedStatusCode(statusCode) || error],
+        errorStatusCode: statusCode,
+      },
+    };
+  }
+
+  // Return the new generated password to be displayed in the UI
+  return {
+    success: true,
+    errors: {},
+    data: { newPassword: data.updated_password },
+  };
 };
 
 export default UpdatePasswordAction;

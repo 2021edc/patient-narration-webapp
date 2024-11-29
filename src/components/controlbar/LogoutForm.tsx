@@ -1,6 +1,7 @@
 import signoutAction from '@/actions/auth/signout.action';
 import FormSubmit from '@/atoms/formelements/FormSubmit';
 
+// component that will call logout action
 const LogoutForm = () => {
   return (
     <form

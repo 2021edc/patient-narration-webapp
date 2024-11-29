@@ -1,4 +1,4 @@
-'use client';
+// Reusable form input element for passwords.
 
 import { EyeNoneIcon, EyeOpenIcon } from '@radix-ui/react-icons';
 import { useState } from 'react';
@@ -8,10 +8,7 @@ interface FormInputPasswordProps {
   name: string;
   id: string;
   errorMsg?: string;
-  inputElementProps: React.DetailedHTMLProps<
-    React.InputHTMLAttributes<HTMLInputElement>,
-    HTMLInputElement
-  >;
+  inputElementProps: React.ComponentPropsWithRef<'input'>;
   onChange?: () => void;
   labelClassName?: string;
   inputClassName?: string;

@@ -1,12 +1,11 @@
+// Reusable form input element
+
 interface FormInputProps {
   label: string;
   name: string;
   id: string;
   errorMsg?: string;
-  inputElementProps: React.DetailedHTMLProps<
-    React.InputHTMLAttributes<HTMLInputElement>,
-    HTMLInputElement
-  >;
+  inputElementProps: React.ComponentPropsWithRef<'input'>;
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   labelClassName?: string;
   inputClassName?: string;

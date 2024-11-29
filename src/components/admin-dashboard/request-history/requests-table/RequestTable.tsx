@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Table,
   TableBody,
@@ -23,7 +23,10 @@ import {
 import RequestFilters from './RequestFilters';
 import { Button } from '@/components/ui/button';
 import { exportToExcel } from '@/utils/file-export';
-import { DownloadIcon } from '@radix-ui/react-icons';
+import { DownloadIcon, ReloadIcon } from '@radix-ui/react-icons';
+import { usePathname } from 'next/navigation';
+import LoadingSpinner from '@/atoms/LoadingSpinner';
+import { RevalidatePathAction } from '@/actions/revalidatdata.action';
 
 interface RequestHistoryTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -39,6 +42,10 @@ const RequestHistoryTable = <Tdata, TValue>({
     []
   );
 
+  const pathName = usePathname();
+  const [isLoading, setIsLoading] = useState(false);
+
+  // creating the table with columns, table state.
   const table = useReactTable({
     data,
     columns,
@@ -54,6 +61,7 @@ const RequestHistoryTable = <Tdata, TValue>({
     },
   });
 
+  // exporting the table data to excel file.
   const handleExport = () => {
     const todayDate = new Date().toLocaleDateString();
     exportToExcel({
@@ -62,21 +70,46 @@ const RequestHistoryTable = <Tdata, TValue>({
     });
   };
 
+  const handleRefresh = async () => {
+    setIsLoading(true);
+    RevalidatePathAction(pathName);
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 500);
+  };
+
+  // rendering table, table filters, export table button
+
   return (
     <div>
-      <div className="w-full flex items-center justify-end my-2">
-        <Button onClick={handleExport} className="flex items-center gap-2">
-          <DownloadIcon className="h-4 w-4"></DownloadIcon>
-          Export Table
-        </Button>
+      <div className="sticky top-16 bg-white">
+        <div className="w-full flex items-center justify-end  gap-4 my-2">
+          <Button onClick={handleExport} className="flex items-center gap-2">
+            <DownloadIcon className="h-4 w-4"></DownloadIcon>
+            Export Table
+          </Button>
+          <Button
+            className="flex gap-2 items-center min-w-32"
+            onClick={handleRefresh}
+          >
+            {isLoading ? (
+              <LoadingSpinner className="h-4 w-4"></LoadingSpinner>
+            ) : (
+              <>
+                <ReloadIcon /> Refresh
+              </>
+            )}
+          </Button>
+        </div>
+        <RequestFilters
+          table={table}
+          setColumnFilters={setColumnFilters}
+          setSorting={setSorting}
+        ></RequestFilters>
       </div>
-      <RequestFilters
-        table={table}
-        setColumnFilters={setColumnFilters}
-        setSorting={setSorting}
-      ></RequestFilters>
+
       <Table className="my-1">
-        <TableHeader>
+        <TableHeader className="">
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
