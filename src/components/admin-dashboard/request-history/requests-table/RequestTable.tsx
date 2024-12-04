@@ -82,7 +82,7 @@ const RequestHistoryTable = <Tdata, TValue>({
 
   return (
     <div>
-      <div className="sticky top-16 bg-white">
+      <div className="sticky top-16 bg-white z-50">
         <div className="w-full flex items-center justify-end  gap-4 my-2">
           <Button onClick={handleExport} className="flex items-center gap-2">
             <DownloadIcon className="h-4 w-4"></DownloadIcon>

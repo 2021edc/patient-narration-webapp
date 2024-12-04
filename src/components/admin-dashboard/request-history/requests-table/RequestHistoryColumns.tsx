@@ -1,7 +1,7 @@
 'use client';
 
 import ColumnSortButton from '@/atoms/ColumnSortButton';
-import { IRequestDetail } from '@/types/api/request-history';
+import { IRequestDetailFormatted } from '@/types/api/request-history';
 import { DownloadIcon } from '@radix-ui/react-icons';
 import { ColumnDef, Row } from '@tanstack/react-table';
 import RequestHistoryTable from './RequestTable';
@@ -11,7 +11,7 @@ import { useCallback, useState } from 'react';
 import { dateUtcToIso } from '@/utils/dates';
 
 interface RequestHistoryColumnsProps {
-  data: IRequestDetail[];
+  data: IRequestDetailFormatted[];
 }
 
 // Component to define request history table columns, and pass the columns to table.
@@ -30,20 +30,12 @@ const RequestHistoryColumns = ({ data }: RequestHistoryColumnsProps) => {
     []
   );
 
-  const arrayFilterFunction = useCallback(
-    (row: Row<IRequestDetail>, columnId: string, filterValue: string) => {
-      if (!filterValue) return true;
-      const filterString = filterValue.toLowerCase();
-      const columnValues: string[] = row.renderValue(columnId);
-      return columnValues.some((subject) =>
-        subject.toLowerCase().includes(filterString)
-      );
-    },
-    []
-  );
-
   const dateFilterFunction = useCallback(
-    (row: Row<IRequestDetail>, columnId: string, filterValue: string) => {
+    (
+      row: Row<IRequestDetailFormatted>,
+      columnId: string,
+      filterValue: string
+    ) => {
       if (!filterValue) return true;
       const filterString = filterValue.toLowerCase();
       const columnValue: string = row.renderValue(columnId);
@@ -54,7 +46,7 @@ const RequestHistoryColumns = ({ data }: RequestHistoryColumnsProps) => {
   );
 
   // Column definitions for request history table
-  const RequestColumns: ColumnDef<IRequestDetail>[] = [
+  const RequestColumns: ColumnDef<IRequestDetailFormatted>[] = [
     {
       accessorKey: 'narration_id',
       header: 'ID',
@@ -66,14 +58,10 @@ const RequestHistoryColumns = ({ data }: RequestHistoryColumnsProps) => {
     {
       accessorKey: 'narration_sites',
       header: 'Sites',
-      cell: ({ row }) => row.original.narration_sites.join(', '),
-      filterFn: arrayFilterFunction,
     },
     {
       accessorKey: 'narration_subjects',
       header: 'Subjects',
-      cell: ({ row }) => row.original.narration_subjects.join(', '),
-      filterFn: arrayFilterFunction,
     },
     {
       accessorKey: 'created_on',
