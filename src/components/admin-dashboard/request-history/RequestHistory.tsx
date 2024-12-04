@@ -32,7 +32,7 @@ const RequestHistory = async ({ searchParams }: RequestHistoryProps) => {
   // render pagination, page size selection and request table components
   return (
     <div className="relative">
-      <div className="grid lg:grid-cols-2 gap-4 mb-4 py-4 sticky top-0 bg-white">
+      <div className="grid lg:grid-cols-2 gap-4 mb-4 py-4 sticky top-0 bg-white z-50">
         <div>
           <SelectPageSizeLimit
             cookie_key={PREFERENCE_COOKIES.PAGE_SIZE}

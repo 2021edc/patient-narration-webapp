@@ -5,7 +5,10 @@ import { api_get_requests_history } from '@/utils/url-helper';
 import { redirect } from 'next/navigation';
 import RequestHistoryColumns from './requests-table/RequestHistoryColumns';
 import ErrorText from '@/atoms/ErrorText';
-import { IRequestDetail } from '@/types/api/request-history';
+import {
+  IRequestDetail,
+  IRequestDetailFormatted,
+} from '@/types/api/request-history';
 import handleUnauthorizedStatusCode from '@/services/handleStatusCode';
 
 interface RequestTableWrapperProps {
@@ -32,9 +35,21 @@ const RequestTableWrapper = async ({
     undefined,
     true
   )) as { data: IRequestDetail[]; error: string; statusCode: number };
+
+  // joining array of sites and subjects to string
+  let formattedData: IRequestDetailFormatted[] = [];
+  if (data) {
+    formattedData = data.map((requestItem) => ({
+      ...requestItem,
+      narration_sites: requestItem.narration_sites.join(', '),
+      narration_subjects: requestItem.narration_subjects.join(', '),
+    }));
+  }
   return (
     <>
-      {data && <RequestHistoryColumns data={data}></RequestHistoryColumns>}
+      {data && (
+        <RequestHistoryColumns data={formattedData}></RequestHistoryColumns>
+      )}
       {error && (
         <ErrorText
           message={handleUnauthorizedStatusCode(statusCode) || error}
