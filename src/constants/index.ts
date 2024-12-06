@@ -52,5 +52,5 @@ export enum CACHE_TAGS {
 }
 
 export enum APP_PATHS {
-  ADMIN_REQ_HISTORY = '/admin/request-history',
+  ADMIN_REQ_HISTORY = '/admin/request-history?page=1',
 }

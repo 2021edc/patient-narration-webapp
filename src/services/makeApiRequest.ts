@@ -17,6 +17,7 @@ const makeApiRequest = async <TData>(
   tag: string | undefined = undefined,
   noCache: boolean = false
 ) => {
+  console.log(`Calling API endpoint - ${apiMethod} - ${url}`);
   let error: string | undefined;
 
   // Initailize request headers
@@ -54,7 +55,8 @@ const makeApiRequest = async <TData>(
   // handle error from api.
   if (!response.ok) {
     const errorResponse = await response.json();
-    console.error(errorResponse);
+    console.error('Response', errorResponse);
+    console.error('Request Headers', requestOptions);
     try {
       if (errorResponse.detail instanceof Array) {
         error = errorResponse.detail

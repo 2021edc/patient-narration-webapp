@@ -5,6 +5,8 @@ import makeApiRequest from '@/services/makeApiRequest';
 import { ISessionTransferResponse, ISigninResponse } from '@/types/api/auth';
 import { api_login_session_transfer } from '@/utils/url-helper';
 import SetCookieAction from './setcookie.action';
+import { redirect } from 'next/navigation';
+import { revalidatePath } from 'next/cache';
 
 const SessionTransferAction = async (signinData: ISigninResponse) => {
   // return false to UI if no signin data is provided
@@ -30,7 +32,8 @@ const SessionTransferAction = async (signinData: ISigninResponse) => {
   if (error) {
     return false;
   }
-  return true;
+  revalidatePath('/');
+  redirect('/');
 };
 
 export default SessionTransferAction;

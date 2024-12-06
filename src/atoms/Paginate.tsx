@@ -14,33 +14,22 @@ import {
   DoubleArrowLeftIcon,
   DoubleArrowRightIcon,
 } from '@radix-ui/react-icons';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 
 export interface PaginateProps {
-  searchParams: { page?: string; limit?: string } | undefined;
-  totalCount: number;
-  pageSize: number;
-  page: number;
+  totalPages: number;
 }
 
-const Paginate = ({
-  searchParams,
-  pageSize,
-  totalCount,
-  page,
-}: PaginateProps) => {
+const Paginate = ({ totalPages }: PaginateProps) => {
   const pathName = usePathname();
-
-  // Calculating the no of pages from items per page and total items
-  const totalPageCount = totalCount > 0 ? Math.ceil(totalCount / pageSize) : 1;
+  const searchParams = useSearchParams();
+  const currentPage = Number(searchParams.get('page') || '1');
 
   // Generating page links using search params object.
   const buildLink = (newPage: number) => {
     const pagekey = 'page';
-    const limitkey = 'limit';
     const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.set(pagekey, String(newPage));
-    newSearchParams.set(limitkey, String(pageSize));
     return `${pathName}?${newSearchParams.toString()}`;
   };
 
@@ -50,11 +39,11 @@ const Paginate = ({
     const items: ReactNode[] = [];
     const maxVisiblePages = 5;
 
-    if (totalPageCount <= maxVisiblePages) {
-      for (let i = 1; i <= totalPageCount; i++) {
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) {
         items.push(
           <PaginationItem key={i}>
-            <PaginationLink href={buildLink(i)} isActive={page === i}>
+            <PaginationLink href={buildLink(i)} isActive={currentPage === i}>
               {i}
             </PaginationLink>
           </PaginationItem>
@@ -63,13 +52,13 @@ const Paginate = ({
     } else {
       items.push(
         <PaginationItem key={1}>
-          <PaginationLink href={buildLink(1)} isActive={page === 1}>
+          <PaginationLink href={buildLink(1)} isActive={currentPage === 1}>
             1
           </PaginationLink>
         </PaginationItem>
       );
 
-      if (page > 3) {
+      if (currentPage > 3) {
         items.push(
           <PaginationItem key="ellipsis-start">
             <PaginationEllipsis />
@@ -77,20 +66,20 @@ const Paginate = ({
         );
       }
 
-      const start = Math.max(2, page - 1);
-      const end = Math.min(totalPageCount - 1, page + 1);
+      const start = Math.max(2, currentPage - 1);
+      const end = Math.min(totalPages - 1, currentPage + 1);
 
       for (let i = start; i <= end; i++) {
         items.push(
           <PaginationItem key={i}>
-            <PaginationLink href={buildLink(i)} isActive={page === i}>
+            <PaginationLink href={buildLink(i)} isActive={currentPage === i}>
               {i}
             </PaginationLink>
           </PaginationItem>
         );
       }
 
-      if (page < totalPageCount - 2) {
+      if (currentPage < totalPages - 2) {
         items.push(
           <PaginationItem key="ellipsis-end">
             <PaginationEllipsis />
@@ -99,12 +88,12 @@ const Paginate = ({
       }
 
       items.push(
-        <PaginationItem key={totalPageCount}>
+        <PaginationItem key={totalPages}>
           <PaginationLink
-            href={buildLink(totalPageCount)}
-            isActive={page === totalPageCount}
+            href={buildLink(totalPages)}
+            isActive={currentPage === totalPages}
           >
-            {totalPageCount}
+            {totalPages}
           </PaginationLink>
         </PaginationItem>
       );
@@ -119,8 +108,8 @@ const Paginate = ({
           <PaginationItem>
             <PaginationLink
               href={buildLink(1)}
-              aria-disabled={page === 1}
-              className={`px-4 flex gap-2 items-center w-max ${page === 1 ? 'pointer-events-none opacity-50' : undefined}`}
+              aria-disabled={currentPage === 1}
+              className={`px-4 flex gap-2 items-center w-max ${currentPage === 1 ? 'pointer-events-none opacity-50' : undefined}`}
             >
               <DoubleArrowLeftIcon className="h-4 w-4" />
               <span>First</span>
@@ -128,22 +117,22 @@ const Paginate = ({
           </PaginationItem>
           <PaginationItem>
             <PaginationPrevious
-              href={buildLink(Math.max(page - 1, 1))}
-              aria-disabled={page === 1}
-              tabIndex={page === 1 ? -1 : undefined}
+              href={buildLink(Math.max(currentPage - 1, 1))}
+              aria-disabled={currentPage === 1}
+              tabIndex={currentPage === 1 ? -1 : undefined}
               className={
-                page === 1 ? 'pointer-events-none opacity-50' : undefined
+                currentPage === 1 ? 'pointer-events-none opacity-50' : undefined
               }
             />
           </PaginationItem>
           {renderPageNumbers()}
           <PaginationItem>
             <PaginationNext
-              href={buildLink(Math.min(page + 1, totalPageCount))}
-              aria-disabled={page === totalPageCount}
-              tabIndex={page === totalPageCount ? -1 : undefined}
+              href={buildLink(Math.min(currentPage + 1, totalPages))}
+              aria-disabled={currentPage === totalPages}
+              tabIndex={currentPage === totalPages ? -1 : undefined}
               className={
-                page === totalPageCount
+                currentPage === totalPages
                   ? 'pointer-events-none opacity-50'
                   : undefined
               }
@@ -151,9 +140,9 @@ const Paginate = ({
           </PaginationItem>
           <PaginationItem>
             <PaginationLink
-              href={buildLink(totalPageCount)}
-              aria-disabled={page === totalPageCount}
-              className={`px-4 flex gap-2 items-center w-max ${page === totalPageCount ? 'pointer-events-none opacity-50' : undefined}`}
+              href={buildLink(totalPages)}
+              aria-disabled={currentPage === totalPages}
+              className={`px-4 flex gap-2 items-center w-max ${currentPage === totalPages ? 'pointer-events-none opacity-50' : undefined}`}
             >
               <span>Last</span>
               <DoubleArrowRightIcon className="h-4 w-4" />

@@ -1,16 +1,23 @@
 import SelectPageSizeLimit from '@/atoms/SelectPageSizeLimit';
-import { PREFERENCE_COOKIES, REQUEST_HISTORY_PAGESIZES } from '@/constants';
+import {
+  API_METHODS,
+  PREFERENCE_COOKIES,
+  REQUEST_HISTORY_PAGESIZES,
+} from '@/constants';
 import { cookies } from 'next/headers';
 import { Suspense } from 'react';
 import LoadingBars from '@/atoms/LoadingBars';
-import RequestPagination from './RequestPagination';
 import RequestTableWrapper from './RequestTableWrapper';
+import makeApiRequest from '@/services/makeApiRequest';
+import { api_get_requests_total } from '@/utils/url-helper';
+import { getTokenServerSide } from '@/services/getTokenServerSide';
+import { redirect } from 'next/navigation';
+import Paginate from '@/atoms/Paginate';
 
 interface RequestHistoryProps {
   searchParams:
     | {
         page?: string;
-        limit?: string;
       }
     | undefined;
 }
@@ -20,14 +27,28 @@ interface RequestHistoryProps {
 const RequestHistory = async ({ searchParams }: RequestHistoryProps) => {
   // check and get page size preference if saved in a cookie, otherwise defaults to first of page size options(20)
   const storedPageSizeCookie = cookies().get(PREFERENCE_COOKIES.PAGE_SIZE);
-  let storedPageSize = REQUEST_HISTORY_PAGESIZES[0];
+  let pageSize = REQUEST_HISTORY_PAGESIZES[0];
   if (storedPageSizeCookie) {
-    storedPageSize = Number(storedPageSizeCookie.value);
+    pageSize = Number(storedPageSizeCookie.value);
   }
+
+  const token = getTokenServerSide();
+  if (!token) {
+    redirect('/login');
+  }
+
+  // get total no of requests from backend, used to create and render pagination links.
+
+  const { data: totalData } = (await makeApiRequest(
+    api_get_requests_total(),
+    API_METHODS.GET,
+    {},
+    token
+  )) as { data: number; error: string; statusCode: number };
 
   // get page number for search params if available, else default to page 1
   const page = Number(searchParams?.page || '1');
-  const pageSize = Number(storedPageSize);
+  const totalPages = totalData > 0 ? Math.ceil(totalData / pageSize) : 1;
 
   // render pagination, page size selection and request table components
   return (
@@ -42,13 +63,7 @@ const RequestHistory = async ({ searchParams }: RequestHistoryProps) => {
         </div>
 
         <div className="w-full flex justify-start lg:justify-end">
-          <Suspense fallback={<LoadingBars></LoadingBars>}>
-            <RequestPagination
-              pageSize={pageSize}
-              page={page}
-              searchParams={searchParams}
-            ></RequestPagination>
-          </Suspense>
+          <Paginate totalPages={totalPages}></Paginate>
         </div>
       </div>
 

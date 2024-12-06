@@ -34,7 +34,7 @@ const SelectPageSizeLimit = ({
       pathName
     );
     if (limitChanged) {
-      router.replace(`${pathName}?page=${1}&limit=${value}`);
+      router.replace(`${pathName}?page=${1}`);
     }
   };
 

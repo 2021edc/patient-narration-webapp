@@ -31,9 +31,7 @@ const RequestTableWrapper = async ({
     api_get_requests_history(page, pageSize),
     API_METHODS.GET,
     {},
-    token,
-    undefined,
-    true
+    token
   )) as { data: IRequestDetail[]; error: string; statusCode: number };
 
   // joining array of sites and subjects to string

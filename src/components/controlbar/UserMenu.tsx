@@ -47,7 +47,7 @@ const UserMenu = () => {
             className="border-b py-2 dark:border-b-light-gray"
             asChild
           >
-            <Link href="/requests">Requests History</Link>
+            <Link href="/requests?page=1">Requests History</Link>
           </MenubarItem>
           {isAdmin && (
             <MenubarItem

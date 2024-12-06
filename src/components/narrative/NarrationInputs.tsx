@@ -171,7 +171,7 @@ const NarrationInputs = ({
         className: 'w-max right-0',
         action: (
           <Button>
-            <Link href={'/requests'} className="text-sm">
+            <Link href={'/requests?page=1'} className="text-sm">
               View Status
             </Link>
           </Button>
