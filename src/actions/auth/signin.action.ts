@@ -7,6 +7,8 @@ import { ISigninResponse } from '@/types/api/auth';
 import { api_login_url } from '@/utils/url-helper';
 import { z } from 'zod';
 import SetCookieAction from './setcookie.action';
+import { redirect } from 'next/navigation';
+import { revalidatePath } from 'next/cache';
 
 const signinAction = async (
   formState: ISigninFormState,
@@ -43,18 +45,14 @@ const signinAction = async (
     return { success: false, errors: { _form: [error] } };
   }
 
-  // if no active session, save the token and user info in secure cookies
-  if (!data.is_active_session) {
-    const { cookiesSaved } = await SetCookieAction(data);
-    if (cookiesSaved) {
-      return { success: true, errors: {} };
-    }
-  }
-  // else indicate an active session to the UI
-  else {
+  // if active session, indicate an active session to the UI
+  if (data.is_active_session) {
     return { success: false, isActiveSession: data.is_active_session, data };
   }
-  return { success: false, errors: { _form: ['Something went wrong'] } };
+
+  await SetCookieAction(data);
+  revalidatePath('/');
+  redirect('/');
 };
 
 export default signinAction;

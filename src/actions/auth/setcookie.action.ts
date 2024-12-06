@@ -2,7 +2,6 @@
 
 import { AUTH_COOKIE, COOKIE_EXPIRY, USER_ROLE_COOKIE } from '@/constants';
 import { ISigninResponse } from '@/types/api/auth';
-import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 
 const SetCookieAction = async (data: ISigninResponse | undefined) => {
@@ -35,7 +34,6 @@ const SetCookieAction = async (data: ISigninResponse | undefined) => {
       maxAge: COOKIE_EXPIRY,
     });
 
-    revalidatePath('/');
     return { cookiesSaved: true };
   }
   return { cookiesSaved: false };

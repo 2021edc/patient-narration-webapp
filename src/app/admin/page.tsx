@@ -18,7 +18,7 @@ const AdminDashboardPage = () => {
             </Link>
           </li>
           <li className="px-6 py-6 shadow-lg text-gray-800 hover:bg-[#e5eaf0] rounded-lg flex flex-col items-center justify-center border">
-            <Link href={'/admin/request-history'}>
+            <Link href={'/admin/request-history?page=1'}>
               <div className="flex gap-4 items-center py-6 px-12">
                 <ListBulletIcon className="h-8 w-8 text-light-gray"></ListBulletIcon>
                 <p className="text-xl font-semibold">Request History</p>

@@ -21,7 +21,7 @@ export default function Page() {
               </h3>
             </li>
           </Link>
-          <Link href={'/requests'}>
+          <Link href={'/requests?page=1'}>
             <li className="w-full aspect-[3/1] px-6 py-12 shadow-lg text-gray-800 hover:bg-[#e5eaf0] rounded-lg flex flex-col items-center justify-center border">
               <h3 className="text-lg font-semibold w-full text-center">
                 Requests History

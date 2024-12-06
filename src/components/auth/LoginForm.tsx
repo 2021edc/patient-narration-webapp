@@ -5,9 +5,7 @@ import FormInput from '@/atoms/formelements/FormInput';
 import FormInputPassword from '@/atoms/formelements/FormInputPassword';
 import FormSubmit from '@/atoms/formelements/FormSubmit';
 import { ISigninFormState } from '@/types';
-import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { toast } from 'sonner';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,7 +20,6 @@ import { useFormState } from 'react-dom';
 import SessionTransferAction from '@/actions/auth/sessiontransfer.action';
 
 const LoginForm = () => {
-  const router = useRouter();
   const initialState: ISigninFormState = {
     success: false,
     errors: { _form: [] },
@@ -33,13 +30,7 @@ const LoginForm = () => {
   // function to handle sesstion transfer. calls new action to transfer session.
   const handleSessionTransfer = async () => {
     if (formState.data) {
-      const transferSession = await SessionTransferAction(formState.data);
-      if (transferSession) {
-        toast.success('Login Successful');
-        router.replace('/');
-      } else {
-        toast.error('Error transfering session');
-      }
+      await SessionTransferAction(formState.data);
     }
   };
 
@@ -49,14 +40,6 @@ const LoginForm = () => {
       setShowTransferAlert(true);
     }
   }, [formState.isActiveSession]);
-
-  // redirect to main page after successful login
-  useEffect(() => {
-    if (formState.success) {
-      toast.success('Login Successful');
-      router.replace('/');
-    }
-  }, [formState.success, router]);
 
   return (
     <section className="w-full h-full flex items-center justify-center">
