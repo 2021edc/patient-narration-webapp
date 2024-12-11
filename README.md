@@ -30,3 +30,4 @@ To deploy on Amplify, connect the repository to Amplify, and deploy a selected b
 .env.sample in Amplify console. No additional settings needed for deployment. For additional information, please refer AWS Amplify documentation.
 
 - [Amplify NextJs deployment documentation](https://docs.aws.amazon.com/amplify/latest/userguide/deploy-nextjs-app.html)
+- 
