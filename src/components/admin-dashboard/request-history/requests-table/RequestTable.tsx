@@ -1,6 +1,5 @@
 'use client';
 
-import React, { useState } from 'react';
 import {
   Table,
   TableBody,
@@ -21,32 +20,22 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import RequestFilters from './RequestFilters';
-import { Button } from '@/components/ui/button';
 import { exportToExcel } from '@/utils/file-export';
-import { DownloadIcon, ReloadIcon } from '@radix-ui/react-icons';
-import { usePathname } from 'next/navigation';
-import LoadingSpinner from '@/atoms/LoadingSpinner';
-import { RevalidatePathAction } from '@/actions/revalidatdata.action';
+import RequestTableActions from './RequestTableActions';
+import { useState } from 'react';
+import { IRequestDetailFormatted } from '@/types/api/request-history';
 
-interface RequestHistoryTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
+interface RequestHistoryTableProps {
+  columns: ColumnDef<IRequestDetailFormatted>[];
+  data: IRequestDetailFormatted[];
 }
 
-const RequestHistoryTable = <Tdata, TValue>({
-  columns,
-  data,
-}: RequestHistoryTableProps<Tdata, TValue>) => {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
-
-  const pathName = usePathname();
-  const [isLoading, setIsLoading] = useState(false);
+const RequestHistoryTable = ({ columns, data }: RequestHistoryTableProps) => {
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
   // creating the table with columns, table state.
-  const table = useReactTable({
+  const table = useReactTable<IRequestDetailFormatted>({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
@@ -63,44 +52,20 @@ const RequestHistoryTable = <Tdata, TValue>({
 
   // exporting the table data to excel file.
   const handleExport = () => {
-    const todayDate = new Date().toLocaleDateString();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const sanitizedData = data.map(({ id, user_id, ...rest }) => rest);
     exportToExcel({
-      data,
-      fileName: `Request_History_${todayDate}_${new Date().toISOString()}.xlsx`,
+      data: sanitizedData,
+      fileName: `Request_History_${new Date().toISOString()}.xlsx`,
     });
-  };
-
-  const handleRefresh = async () => {
-    setIsLoading(true);
-    RevalidatePathAction(pathName);
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 500);
   };
 
   // rendering table, table filters, export table button
 
   return (
     <div>
-      <div className="sticky top-16 bg-white z-50">
-        <div className="w-full flex items-center justify-end  gap-4 my-2">
-          <Button onClick={handleExport} className="flex items-center gap-2">
-            <DownloadIcon className="h-4 w-4"></DownloadIcon>
-            Export Table
-          </Button>
-          <Button
-            className="flex gap-2 items-center min-w-32"
-            onClick={handleRefresh}
-          >
-            {isLoading ? (
-              <LoadingSpinner className="h-4 w-4"></LoadingSpinner>
-            ) : (
-              <>
-                <ReloadIcon /> Refresh
-              </>
-            )}
-          </Button>
-        </div>
+      <div className="sticky top-28 md:top-16 bg-white z-50">
+        <RequestTableActions handleExport={handleExport}></RequestTableActions>
         <RequestFilters
           table={table}
           setColumnFilters={setColumnFilters}

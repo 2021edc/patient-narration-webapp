@@ -18,7 +18,7 @@ const UserTableFilters = <TData,>({
   return (
     <div>
       <h4 className="text-sm">Filter by:</h4>
-      <div className="grid grid-cols-3 lg:grid-cols-6 gap-1 lg:gap-4 items-center">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-1 lg:gap-4 items-center">
         <FormInput
           id="namefilter"
           name="namefilter"

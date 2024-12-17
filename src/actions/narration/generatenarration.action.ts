@@ -3,7 +3,7 @@
 import { API_METHODS } from '@/constants';
 import { getTokenServerSide } from '@/services/getTokenServerSide';
 import handleUnauthorizedStatusCode from '@/services/handleStatusCode';
-import { api_process_pn_genereate_narration } from '@/utils/url-helper';
+import { api_narration_generate_narration } from '@/utils/url-helper';
 import { redirect } from 'next/navigation';
 
 const GenerateNarrationAction = async (
@@ -18,7 +18,7 @@ const GenerateNarrationAction = async (
 
   // make api request to the backend with narration_type and subjects as query parameters, file in body
   const response = await fetch(
-    api_process_pn_genereate_narration({
+    api_narration_generate_narration({
       narration_type: narrationType,
       filter_value: subjects,
     }),
@@ -34,6 +34,7 @@ const GenerateNarrationAction = async (
   // return api errors if any to the UI
   if (!response.ok) {
     const errorResponse = await response.json();
+    console.error(errorResponse);
     return {
       error:
         handleUnauthorizedStatusCode(response.status) || errorResponse.message,

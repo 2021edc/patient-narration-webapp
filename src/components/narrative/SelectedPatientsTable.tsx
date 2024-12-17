@@ -7,6 +7,7 @@ import {
   TableCell,
   TableRow,
 } from '../ui/table';
+import { memo } from 'react';
 
 const TABLE_HEADERS = [
   'Subject ID',
@@ -27,16 +28,19 @@ const SelectedSubjectsTable = ({
   selectedSubjectIds,
 }: SelectedSubjectsTableProps) => {
   return (
-    <div className="my-10 border rounded-md">
+    <div className="my-10">
       <h2 className="text-xl font-semibold text-gray-500 my-4">
         Selected Subject Details
       </h2>
       <div className="max-h-[60vh] relative overflow-auto">
         <Table>
-          <TableHeader className="text-lg sticky top-0 bg-white">
-            <TableRow className="text-center">
+          <TableHeader className="text-lg bg-dark-gray">
+            <TableRow>
               {TABLE_HEADERS.map((header) => (
-                <TableHead className="font-bold" key={header}>
+                <TableHead
+                  className="font-bold text-center text-white"
+                  key={header}
+                >
                   {header}
                 </TableHead>
               ))}
@@ -49,8 +53,10 @@ const SelectedSubjectsTable = ({
                 (item) => item.subject === subjectId
               );
               return (
-                <TableRow key={data?.subject} className="text-left">
-                  <TableCell>{data?.subject.trim()}</TableCell>
+                <TableRow key={data?.subject} className="text-center">
+                  <TableCell className="!py-6">
+                    {data?.subject.trim()}
+                  </TableCell>
                   <TableCell>{data?.site}</TableCell>
                   <TableCell>
                     {data?.consent_date
@@ -68,4 +74,4 @@ const SelectedSubjectsTable = ({
   );
 };
 
-export default SelectedSubjectsTable;
+export default memo(SelectedSubjectsTable);

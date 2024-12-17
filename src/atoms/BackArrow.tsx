@@ -15,9 +15,9 @@ const BackArrow = () => {
   return (
     <button
       onClick={handleBackClick}
-      className="text-gray-400 dark:text-white dark:hover:text-gray-300 hover:text-gray-900 ml-5 absolute left-0"
+      className="text-gray-400 dark:text-white dark:hover:text-gray-300 hover:text-gray-900"
     >
-      <ArrowLeftIcon className="h-6 w-6" />
+      <ArrowLeftIcon className="h-4 w-4 lg:h-6 lg:w-6" />
     </button>
   );
 };

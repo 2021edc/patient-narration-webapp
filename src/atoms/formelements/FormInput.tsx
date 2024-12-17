@@ -11,6 +11,7 @@ interface FormInputProps {
   inputClassName?: string;
   containerClassName?: string;
   errorClassName?: string;
+  showError?: boolean;
 }
 
 const FormInput = ({
@@ -24,6 +25,7 @@ const FormInput = ({
   containerClassName = '',
   errorClassName = '',
   onChange = undefined,
+  showError = true,
 }: FormInputProps) => {
   return (
     <div className={`w-full mb-1 ${containerClassName}`}>
@@ -37,11 +39,13 @@ const FormInput = ({
         {...inputElementProps}
         onChange={onChange}
       ></input>
-      <p
-        className={`mb-2 text-red-800 dark:text-red-500 text-xs min-h-2 ${errorClassName}`}
-      >
-        {errorMsg}
-      </p>
+      {showError && (
+        <p
+          className={`mb-2 text-red-800 dark:text-red-500 text-xs min-h-2 ${errorClassName}`}
+        >
+          {errorMsg}
+        </p>
+      )}
     </div>
   );
 };

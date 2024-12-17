@@ -20,9 +20,9 @@ export const api_admin_get_roles_list = () => `${baseUrl}role/list`;
 // Narration generation endpoints
 export const api_get_request_history = () =>
   `${baseUrl}narration/request_history`;
-export const api_process_pn_process_file = () =>
-  `${baseUrl}narration/sheet_info`;
-export const api_process_pn_genereate_narration = ({
+export const api_narration_process_file = (narrationType: string) =>
+  `${baseUrl}narration/sheet_info?narration_type=${narrationType}`;
+export const api_narration_generate_narration = ({
   narration_type,
   filter_value,
 }: {

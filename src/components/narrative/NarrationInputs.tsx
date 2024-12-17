@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useCallback, useMemo, useState } from 'react';
-import NarrationDropdown from './NarrationDropdown';
 import MultiSelectDropdown from './MultiSelectDropdown';
 import SelectedSubjectsTable from './SelectedPatientsTable';
 import { toast } from 'sonner';
@@ -19,11 +18,13 @@ import LoadingSpinner from '@/atoms/LoadingSpinner';
 interface NarrationInputsProps {
   narrationData: INarrationParsedData;
   narrationFile: File;
+  selectedNarration: string;
 }
 
 const NarrationInputs = ({
   narrationData,
   narrationFile,
+  selectedNarration,
 }: NarrationInputsProps) => {
   const [loading, setLoading] = useState(false);
 
@@ -38,11 +39,10 @@ const NarrationInputs = ({
     return result;
   }, [narrationData]);
 
-  const sites = Object.keys(narrationData); // Unique site values for Select site dropdown
+  const sites = useMemo(() => Object.keys(narrationData), [narrationData]); // Unique site values for Select site dropdown
   const [subjectIds, setSubjectIds] = useState<string[]>([]); // Subject Ids for the select subject menu
 
   const [selectedSites, setSelectedSites] = useState<string[]>([]); // user selected sites
-  const [selectedNarration, setSelectedNarration] = useState<string>(); // user selected narration
   const [selectedSubjectIds, setSelectedSubjectIds] = useState<string[]>([]); // user selected subject Ids
   const [selectedSubjectsData, setSelectedSubjectsData] = useState<
     ISubjectData[]
@@ -53,7 +53,6 @@ const NarrationInputs = ({
     setSelectedSites([]);
     setSubjectIds([]);
     setSelectedSubjectIds([]);
-    setSelectedNarration(undefined);
   }, []);
 
   // Function executed when a site is selected in dropdown. add particular selected site to selected-sites list,
@@ -182,14 +181,9 @@ const NarrationInputs = ({
   };
 
   return (
-    <div className="p-4 text-center w-full text-gray-900 dark:text-white">
-      <div className="w-full">
-        <div className="flex items-start gap-8 w-full">
-          <NarrationDropdown
-            disabled={false}
-            selectedNarration={selectedNarration}
-            setSelectedNarration={setSelectedNarration}
-          ></NarrationDropdown>
+    <div className="w-full text-gray-900 dark:text-white">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 w-full">
+        <div className="col-span-2">
           <MultiSelectDropdown
             key={'siteselection'}
             optionsList={sites}
@@ -199,8 +193,9 @@ const NarrationInputs = ({
             onSelectAll={handleSiteSelectAll}
             selectAllLimit={sites.length}
             columnName="Sites"
-            disabled={!selectedNarration}
           ></MultiSelectDropdown>
+        </div>
+        <div className="col-span-2">
           <MultiSelectDropdown
             key={'subjectselection'}
             optionsList={subjectIds}
@@ -214,35 +209,38 @@ const NarrationInputs = ({
             columnName="Subjects"
             disabled={selectedSites.length === 0}
           ></MultiSelectDropdown>
+        </div>
+
+        <div className="">
           <Button
-            className="min-w-40 bg-dark-gray dark:bg-light-bg font-bold text-light-text dark:text-dark-text py-5 rounded-lg"
+            className="min-w-40 bg-dark-gray dark:bg-light-bg font-bold text-light-text dark:text-dark-text py-6"
             onClick={() => resetInputs()}
           >
             Reset
           </Button>
         </div>
-        <SelectedSubjectsTable
-          selectedSubjectIds={selectedSubjectIds}
-          subjectData={selectedSubjectsData}
-        ></SelectedSubjectsTable>
-        <div className="mt-10">
-          <Button
-            className="min-w-48 bg-dark-gray dark:bg-white text-white px-4 py-5 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed"
-            disabled={
-              selectedSites.length === 0 ||
-              selectedSubjectIds.length === 0 ||
-              selectedSubjectIds.length > MAX_SUBJECT_LIMIT ||
-              loading
-            }
-            onClick={handleGenerateNarration}
-          >
-            {loading ? (
-              <LoadingSpinner className="h-6 w-6"></LoadingSpinner>
-            ) : (
-              'Generate Narration'
-            )}
-          </Button>
-        </div>
+      </div>
+      <SelectedSubjectsTable
+        selectedSubjectIds={selectedSubjectIds}
+        subjectData={selectedSubjectsData}
+      ></SelectedSubjectsTable>
+      <div className="mt-10 border w-max mx-auto">
+        <Button
+          className="min-w-48 bg-dark-gray dark:bg-white text-white px-4 py-6 disabled:opacity-30 disabled:cursor-not-allowed"
+          disabled={
+            selectedSites.length === 0 ||
+            selectedSubjectIds.length === 0 ||
+            selectedSubjectIds.length > MAX_SUBJECT_LIMIT ||
+            loading
+          }
+          onClick={handleGenerateNarration}
+        >
+          {loading ? (
+            <LoadingSpinner className="h-6 w-6"></LoadingSpinner>
+          ) : (
+            'Generate Narration'
+          )}
+        </Button>
       </div>
     </div>
   );

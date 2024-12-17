@@ -4,7 +4,6 @@ import { IAdminUserInfo } from '@/types/api/admin';
 import { ColumnDef } from '@tanstack/react-table';
 import EditUserDialog from '../EditUserDialog';
 import UserActivateSwitch from '../UserActivateSwitch';
-import ColumnSortButton from '@/atoms/ColumnSortButton';
 import { useCallback, useState } from 'react';
 import UserTable from './UserTable';
 import { Button } from '@/components/ui/button';
@@ -38,27 +37,14 @@ const UserTableColumns = ({
   const columns: ColumnDef<IAdminUserInfo>[] = [
     {
       accessorKey: 'user_name',
-      header: ({ column }) => (
-        <ColumnSortButton
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          title={'Name'}
-          isSorting={column.getIsSorted()}
-        ></ColumnSortButton>
-      ),
+      header: 'Name',
     },
     { accessorKey: 'email', header: 'Email' },
     { accessorKey: 'role_name', header: 'Role' },
     {
       accessorKey: 'created_on',
       cell: ({ row }) => formatDateFunction(row.original.created_on),
-      header: ({ column }) => (
-        <ColumnSortButton
-          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          title={'Created'}
-          isSorting={column.getIsSorted()}
-        ></ColumnSortButton>
-      ),
-      sortingFn: 'datetime',
+      header: 'Created On',
     },
     {
       accessorKey: 'is_user_active',

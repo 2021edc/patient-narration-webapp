@@ -62,3 +62,10 @@ export interface IUploadNarrationFileFormState {
   };
   data?: INarrationParsedData;
 }
+
+export interface IMissingFieldError {
+  type: string;
+  loc: string[];
+  msg: string;
+  input: string | null;
+}
