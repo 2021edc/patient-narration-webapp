@@ -10,7 +10,7 @@ const RequestHistoryPage = async (props: {
   return (
     <div className="w-full min-h-screen mx-auto flex flex-col items-center dark:text-light-text">
       <PageHeader pageTitle={'Request History'}></PageHeader>
-      <div className="max-w-[1440px] mx-auto p-4">
+      <div className="max-w-[1440px] mx-auto p-4 w-full">
         <RequestHistory searchParams={searchParams}></RequestHistory>
       </div>
       <ScrollToTop></ScrollToTop>

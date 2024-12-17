@@ -53,22 +53,19 @@ const RequestHistory = async ({ searchParams }: RequestHistoryProps) => {
   // render pagination, page size selection and request table components
   return (
     <div className="relative">
-      <div className="grid lg:grid-cols-2 gap-4 mb-4 py-4 sticky top-0 bg-white z-50">
-        <div>
-          <SelectPageSizeLimit
-            cookie_key={PREFERENCE_COOKIES.PAGE_SIZE}
-            selectOptions={REQUEST_HISTORY_PAGESIZES}
-            pageSize={String(pageSize)}
-          ></SelectPageSizeLimit>
-        </div>
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-4 py-4 sticky top-0 bg-white z-50">
+        <SelectPageSizeLimit
+          cookie_key={PREFERENCE_COOKIES.PAGE_SIZE}
+          selectOptions={REQUEST_HISTORY_PAGESIZES}
+          pageSize={String(pageSize)}
+        ></SelectPageSizeLimit>
 
-        <div className="w-full flex justify-start lg:justify-end">
-          <Paginate totalPages={totalPages}></Paginate>
-        </div>
+        <Paginate totalPages={totalPages}></Paginate>
       </div>
 
       <Suspense
         fallback={<LoadingBars className="my-20 mx-auto"></LoadingBars>}
+        key={page}
       >
         <RequestTableWrapper
           page={page}

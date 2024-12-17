@@ -43,6 +43,7 @@ const RequestTableWrapper = async ({
       narration_subjects: requestItem.narration_subjects.join(', '),
     }));
   }
+
   return (
     <>
       {data && (

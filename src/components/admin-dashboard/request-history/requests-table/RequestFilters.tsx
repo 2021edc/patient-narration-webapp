@@ -2,6 +2,7 @@ import FormInput from '@/atoms/formelements/FormInput';
 import { Button } from '@/components/ui/button';
 import { ColumnFiltersState, SortingState, Table } from '@tanstack/react-table';
 import DropdownFilter from './DropdownFilter';
+import DateRangeFilter from './DateRangeFilter';
 
 // Component with filter input fields for the columns in Request History table
 
@@ -17,15 +18,16 @@ const RequestFilters = <TData,>({
   setSorting,
 }: RequestFiltersProps<TData>) => {
   return (
-    <div>
+    <div className="mb-6">
       <h4 className="text-sm">Filters</h4>
-      <div className="grid grid-cols-3 lg:grid-cols-8 gap-1 lg:gap-4">
+      <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-8 gap-1 lg:gap-2">
         <FormInput
           id="idfilter"
           name="idfilter"
           label="Request ID"
-          inputClassName="!p-[6px]"
           labelClassName="mb-1 text-xs"
+          inputClassName="!py-[5px] !rounded-md"
+          showError={false}
           onChange={(event) =>
             table.getColumn('narration_id')?.setFilterValue(event.target.value)
           }
@@ -45,8 +47,9 @@ const RequestFilters = <TData,>({
           id="sitesfilter"
           name="sitesfilter"
           label="Sites"
-          inputClassName="!p-[6px]"
           labelClassName="mb-1 text-xs"
+          inputClassName="!py-[5px] !rounded-md"
+          showError={false}
           onChange={(event) =>
             table
               .getColumn('narration_sites')
@@ -63,8 +66,9 @@ const RequestFilters = <TData,>({
           id="subjectfilter"
           name="subjectfilter"
           label="Subjects"
-          inputClassName="!p-[6px]"
           labelClassName="mb-1 text-xs"
+          inputClassName="!py-[5px] !rounded-md"
+          showError={false}
           onChange={(event) =>
             table
               .getColumn('narration_subjects')
@@ -77,26 +81,25 @@ const RequestFilters = <TData,>({
                 ?.getFilterValue() as string) ?? '',
           }}
         ></FormInput>
-        <FormInput
-          id="datefilter"
-          name="datefilter"
-          label="Date"
-          inputClassName="!p-[6px]"
-          labelClassName="mb-1 text-xs"
-          onChange={(event) =>
-            table.getColumn('created_on')?.setFilterValue(event.target.value)
-          }
-          inputElementProps={{
-            value:
-              (table.getColumn('created_on')?.getFilterValue() as string) ?? '',
-          }}
-        ></FormInput>
+        <DropdownFilter
+          column={table.getColumn('created_by')}
+          id={'createdbyfilter'}
+          name={'createdbyfilter'}
+          label={'Created By'}
+        ></DropdownFilter>
+        <DateRangeFilter
+          column={table.getColumn('created_on')}
+          id="request_date"
+          className="col-span-2 m-1"
+          label="Created On"
+        ></DateRangeFilter>
         <FormInput
           id="ipAddress"
           name="ipAddress"
           label="IP Address"
-          inputClassName="!p-[6px]"
+          inputClassName="!py-[5px] !rounded-md"
           labelClassName="mb-1 text-xs"
+          showError={false}
           onChange={(event) =>
             table
               .getColumn('user_ip_address')
@@ -116,7 +119,7 @@ const RequestFilters = <TData,>({
           label={'Status'}
         ></DropdownFilter>
 
-        <div className="flex items-end lg:items-center">
+        <div className="flex items-end mb-1">
           <Button
             onClick={() => {
               setColumnFilters([]);

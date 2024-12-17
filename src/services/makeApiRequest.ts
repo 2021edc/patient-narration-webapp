@@ -1,4 +1,5 @@
 import { API_METHODS } from '@/constants';
+import handleMissingFieldsError from './handleMissingFieldsError';
 
 const BODY_DATA_METHODS = [
   API_METHODS.POST,
@@ -58,12 +59,9 @@ const makeApiRequest = async <TData>(
     console.error('Response', errorResponse);
     console.error('Request Headers', requestOptions);
     try {
+      // check if fastapi returns missing fields error in response.detail
       if (errorResponse.detail instanceof Array) {
-        error = errorResponse.detail
-          .map((errorDetail: any) => {
-            return `${errorDetail.msg}`;
-          })
-          .join(',');
+        error = handleMissingFieldsError(errorResponse.detail);
       } else {
         error = errorResponse.message
           ? errorResponse.message

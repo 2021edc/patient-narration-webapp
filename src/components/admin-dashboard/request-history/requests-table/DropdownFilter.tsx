@@ -39,7 +39,7 @@ const DropdownFilter = <TData,>({
     [column]
   );
   return (
-    <div className={`w-full ${className}`}>
+    <div className={`w-full mb-1 ${className}`}>
       <label
         className={`text-light-gray mb-1 text-xs ${labelClassName}`}
         htmlFor={id}
@@ -51,7 +51,7 @@ const DropdownFilter = <TData,>({
         onValueChange={(value) => column?.setFilterValue(value)}
         value={isAllOption ? '' : columnFilterValue?.toString()}
       >
-        <SelectTrigger className="border text-dark-gray border-light-gray">
+        <SelectTrigger className="border text-dark-gray border-light-gray py-2">
           <SelectValue placeholder={'Select an option'}></SelectValue>
         </SelectTrigger>
         <SelectContent

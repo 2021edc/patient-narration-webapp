@@ -3,7 +3,7 @@ import {
   CaretUpIcon,
   CrossCircledIcon,
 } from '@radix-ui/react-icons';
-import { useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import { Badge } from '../ui/badge';
 import useClickOutside from '@/hooks/useClickOutside';
 import { Button } from '../ui/button';
@@ -28,7 +28,7 @@ const MultiSelectDropdown = ({
   onSelect,
   onUnselect,
   onSelectAll,
-  className = 'w-1/3',
+  className = 'w-full',
   columnName,
   disabled = false,
   selectAllLimit,
@@ -74,7 +74,7 @@ const MultiSelectDropdown = ({
         <button
           onClick={() => setShowDropdown((prev) => !prev)}
           disabled={disabled}
-          className="border border-gray-300 p-2 rounded-lg w-full flex justify-between items-center disabled:opacity-40 disabled:cursor-not-allowed"
+          className="border-2 px-2 py-3 rounded-lg w-full flex justify-between items-center disabled:opacity-40 disabled:cursor-not-allowed"
           aria-haspopup="true"
         >
           {selectedOptions.length > 0 ? (
@@ -98,7 +98,7 @@ const MultiSelectDropdown = ({
             <div role="dropdownitem" className="px-2">
               {/* Select all and reset buttons */}
 
-              <div className="flex gap-2 my-2">
+              <div className="flex gap-2 my-2 flex-wrap">
                 <Button
                   disabled={selectedOptions.length === selectAllLimit}
                   onClick={() => onSelectAll(true)}
@@ -152,7 +152,7 @@ const MultiSelectDropdown = ({
               {menuOptions.map((option) => (
                 <li role="dropdownitem" key={option}>
                   <label
-                    className="flex items-center text-left px-4 py-2 hover:bg-gray-100"
+                    className="flex text-sm lg:text-base items-center text-left px-4 py-2 hover:bg-gray-100"
                     htmlFor={option}
                   >
                     <input
@@ -171,12 +171,8 @@ const MultiSelectDropdown = ({
           </div>
         )}
       </div>
-      {/* Display selected narration */}
-      {selectedOptions.length > 0 && (
-        <div className="mt-2 text-left">{selectedOptions.join(', ')}</div>
-      )}
     </div>
   );
 };
 
-export default MultiSelectDropdown;
+export default memo(MultiSelectDropdown);

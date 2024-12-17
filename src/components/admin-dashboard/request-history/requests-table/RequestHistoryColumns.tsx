@@ -8,7 +8,9 @@ import RequestHistoryTable from './RequestTable';
 import { Button } from '@/components/ui/button';
 import DownloadFileDialog from './DownloadFileDialog';
 import { useCallback, useState } from 'react';
-import { dateUtcToIso } from '@/utils/dates';
+import { REQUEST_STATUS } from '@/constants';
+import { DateRange } from 'react-day-picker';
+import { endOfDay, format, isWithinInterval, startOfDay } from 'date-fns';
 
 interface RequestHistoryColumnsProps {
   data: IRequestDetailFormatted[];
@@ -25,24 +27,26 @@ const RequestHistoryColumns = ({ data }: RequestHistoryColumnsProps) => {
     setOpenDialog(false);
   };
 
-  const formatDateFunction = useCallback(
-    (dateString: string) => dateUtcToIso(dateString),
-    []
-  );
-
-  const dateFilterFunction = useCallback(
+  const isDateWithinRange = useCallback(
     (
       row: Row<IRequestDetailFormatted>,
       columnId: string,
-      filterValue: string
+      filterValue: DateRange | undefined
     ) => {
       if (!filterValue) return true;
-      const filterString = filterValue.toLowerCase();
-      const columnValue: string = row.renderValue(columnId);
-      const formattedDate = formatDateFunction(columnValue);
-      return formattedDate.includes(filterString);
+      const cellDateValue = row.getValue('created_on') as string;
+      const cellDate = new Date(cellDateValue);
+
+      const { from, to } = filterValue;
+      if ((from || to) && !cellDate) return false;
+      if (from && to) {
+        return isWithinInterval(cellDate, {
+          start: startOfDay(from),
+          end: endOfDay(to),
+        });
+      } else return true;
     },
-    [formatDateFunction]
+    []
   );
 
   // Column definitions for request history table
@@ -63,6 +67,7 @@ const RequestHistoryColumns = ({ data }: RequestHistoryColumnsProps) => {
       accessorKey: 'narration_subjects',
       header: 'Subjects',
     },
+    { accessorKey: 'created_by', header: 'Created By' },
     {
       accessorKey: 'created_on',
       header: ({ column }) => (
@@ -72,8 +77,9 @@ const RequestHistoryColumns = ({ data }: RequestHistoryColumnsProps) => {
           isSorting={column.getIsSorted()}
         ></ColumnSortButton>
       ),
-      cell: ({ row }) => formatDateFunction(row.original.created_on),
-      filterFn: dateFilterFunction,
+      cell: ({ row }) =>
+        format(new Date(row.original.created_on), 'dd/M/y hh:mm:ss'),
+      filterFn: isDateWithinRange,
       sortingFn: 'datetime',
     },
     { accessorKey: 'user_ip_address', header: 'IP Address' },
@@ -91,7 +97,7 @@ const RequestHistoryColumns = ({ data }: RequestHistoryColumnsProps) => {
               setSelectedReqId(row.original.narration_id);
               setOpenDialog(true);
             }}
-            disabled={row.original.status === 'Processing'}
+            disabled={row.original.status === REQUEST_STATUS.PROCESSING}
             className="disabled:opacity-20"
           >
             <DownloadIcon className="h-6 w-6"></DownloadIcon>

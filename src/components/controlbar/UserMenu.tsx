@@ -27,9 +27,9 @@ const UserMenu = () => {
   return (
     <Menubar className="bg-white">
       <MenubarMenu>
-        <MenubarTrigger className="bg-white w-[14rem]">
+        <MenubarTrigger className="bg-white w-[8rem] md:w-[14rem]">
           <div className="flex items-center gap-4">
-            <p className="w-[10rem] text-nowrap text-ellipsis overflow-hidden">
+            <p className="w-[5rem] md:w-[10rem] text-nowrap text-ellipsis overflow-hidden">
               {userEmail}
             </p>
             <ChevronDownIcon className="h-4 w-4"></ChevronDownIcon>

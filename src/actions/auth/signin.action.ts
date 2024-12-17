@@ -45,10 +45,11 @@ const signinAction = async (
     return { success: false, errors: { _form: [error] } };
   }
 
-  // if active session, indicate an active session to the UI
+  // if no active session, save the token and user info in secure cookies
   if (data.is_active_session) {
     return { success: false, isActiveSession: data.is_active_session, data };
   }
+  // else indicate an active session to the UI
 
   await SetCookieAction(data);
   revalidatePath('/');

@@ -5,22 +5,25 @@
 import { useFormStatus } from 'react-dom';
 import LoadingSpinner from '../LoadingSpinner';
 import { Button } from '@/components/ui/button';
+import { memo } from 'react';
 
 interface FormSubmitProps {
   children?: React.ReactNode | string;
   className?: string;
+  disabled?: boolean;
 }
 
 const FormSubmit = ({
   children = 'Submit',
   className = '',
+  disabled = false,
 }: FormSubmitProps) => {
   const { pending } = useFormStatus();
 
   return (
     <Button
       type="submit"
-      disabled={pending}
+      disabled={pending || disabled}
       className={`min-w-40 font-bold flex justify-center items-center ${className}`}
     >
       {pending ? (
@@ -32,4 +35,4 @@ const FormSubmit = ({
   );
 };
 
-export default FormSubmit;
+export default memo(FormSubmit);

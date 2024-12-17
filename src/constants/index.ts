@@ -35,6 +35,11 @@ export const MAX_SUBJECT_LIMIT = 30;
 
 export const REQUEST_HISTORY_PAGESIZES = [20, 50, 100, 200, 500];
 
+export enum REQUEST_STATUS {
+  PROCESSING = 'Processing',
+  COMPLETED = 'Completed',
+}
+
 export enum API_METHODS {
   POST = 'POST',
   GET = 'GET',
