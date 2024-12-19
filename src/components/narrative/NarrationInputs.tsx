@@ -4,9 +4,8 @@ import React, { useCallback, useMemo, useState } from 'react';
 import MultiSelectDropdown from './MultiSelectDropdown';
 import SelectedSubjectsTable from './SelectedPatientsTable';
 import { toast } from 'sonner';
-import { MAX_SUBJECT_LIMIT } from '@/constants';
+import { API_METHODS, APP_PATHS, MAX_SUBJECT_LIMIT } from '@/constants';
 import { Button } from '../ui/button';
-import GenerateNarrationAction from '@/actions/narration/generatenarration.action';
 import Link from 'next/link';
 import {
   ExtractedSubjects,
@@ -14,6 +13,12 @@ import {
   ISubjectData,
 } from '@/types/api/narration';
 import LoadingSpinner from '@/atoms/LoadingSpinner';
+import { api_narration_generate_narration } from '@/utils/url-helper';
+import getTokenClientSide from '@/services/getTokenClientSide';
+import { useRouter } from 'next/navigation';
+import handleMissingFieldsError from '@/services/handleMissingFieldsError';
+import handleUnauthorizedStatusCode from '@/services/handleStatusCode';
+import { RevalidatePathAction } from '@/actions/revalidatdata.action';
 
 interface NarrationInputsProps {
   narrationData: INarrationParsedData;
@@ -27,6 +32,8 @@ const NarrationInputs = ({
   selectedNarration,
 }: NarrationInputsProps) => {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | undefined>();
+  const router = useRouter();
 
   // function to extract all subjects from the parsed data from backend api
   const allSubjectsData = useMemo(() => {
@@ -143,28 +150,53 @@ const NarrationInputs = ({
   // call server action to post the narration input file, list of selected subjects and narration type to backend api
   // on successful response show toast message with link to request history page
   const handleGenerateNarration = async () => {
+    setError(undefined);
     setLoading(true);
-    if (!selectedNarration) {
-      toast.error('Select valid narration type');
-      return;
-    }
-    if (selectedSubjectIds.length === 0) {
-      toast.error('Select subjects');
+
+    // get auth token from api route handler, if token not present redirect to login
+    const token = await getTokenClientSide();
+    if (!token) {
+      router.replace('/login');
       return;
     }
 
+    // input file as Form Data for posting to backend
     const formData = new FormData();
     formData.append('narration_file', narrationFile);
-    const { error, data } = await GenerateNarrationAction(
-      selectedNarration,
-      selectedSubjectIds.join(','),
-      formData
+
+    // Making post request to the backend
+    const response = await fetch(
+      api_narration_generate_narration({
+        narration_type: selectedNarration,
+        filter_value: selectedSubjectIds.join(','),
+      }),
+      {
+        method: API_METHODS.POST,
+        body: formData,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
     );
-    if (error) {
-      toast.error(error);
+    // handle API error if any
+    if (!response.ok) {
+      const errorResponse = await response.json();
+      console.error(errorResponse);
+      if (errorResponse.detail && errorResponse.detail instanceof Array) {
+        const errorMsg = handleMissingFieldsError(errorResponse.detail);
+        setError(errorMsg);
+      }
+      setError(
+        handleUnauthorizedStatusCode(response.status) || errorResponse.message
+      );
+      setLoading(false);
+      return;
     }
+    // Get data from backend api
+    const data = await response.json();
     if (data) {
       resetInputs();
+      RevalidatePathAction(APP_PATHS.REQUEST_HISTORY);
       toast.success('Narration generation process started.', {
         duration: 3000,
         className: 'w-max right-0',
@@ -176,6 +208,10 @@ const NarrationInputs = ({
           </Button>
         ),
       });
+      setLoading(false);
+      return;
+    } else {
+      toast.error('Unable to post data for narration generation');
     }
     setLoading(false);
   };
@@ -242,6 +278,9 @@ const NarrationInputs = ({
           )}
         </Button>
       </div>
+      <p className="mb-2 text-red-800 dark:text-red-500 text-center min-h-2 my-6">
+        {error}
+      </p>
     </div>
   );
 };

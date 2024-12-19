@@ -31,6 +31,7 @@ const NarrationDropdown = ({
             className="py-4"
             value={narration.name}
             key={narration.name}
+            disabled={narration.name === 'General'}
           >
             {narration.name}
           </SelectItem>
