@@ -1,7 +1,7 @@
 // Reusable Meril logo element
 
 import ImageWrapper from './ImageWrapper';
-import MerillifeLogo from '@public/assets/MerilLife.png';
+import MerillifeLogo from '@public/assets/MerilLife.svg';
 
 interface MerilLogoProps {
   imageSize?: string;
@@ -15,7 +15,7 @@ const MerilLogo = ({
       src={MerillifeLogo}
       alt="MerilLife logo"
       imageSize={imageSize}
-      sizes="35vw"
+      sizes="50vw"
     ></ImageWrapper>
   );
 };
