@@ -11,8 +11,8 @@ const ControlBar = () => {
   return (
     <nav className="px-4 py-2 flex items-center justify-between bg-light-text dark:bg-transparent shadow-md">
       <Link href={'/'}>
-        <div className="py-1 px-1 lg:px-4 flex gap-2 items-center">
-          <MerilLogo imageSize="h-[40px] w-[40px] lg:h-[40px] lg:w-[60px]"></MerilLogo>
+        <div className="py-1 px-1 lg:px-4 flex gap-2 lg:gap-6 items-center">
+          <MerilLogo imageSize="h-[40px] w-[40px] lg:h-[60px] lg:w-[80px]"></MerilLogo>
           <h2 className="text-base lg:text-xl font-semibold text-dark-gray capitalize">
             {appName ? appName : 'Patient Narration'}
           </h2>
