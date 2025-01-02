@@ -59,9 +59,7 @@ const SelectedSubjectsTable = ({
                   </TableCell>
                   <TableCell>{data?.site}</TableCell>
                   <TableCell>
-                    {data?.consent_date
-                      ? new Date(data?.consent_date).toLocaleDateString()
-                      : 'NA'}
+                    {data?.consent_date ? data.consent_date : 'NA'}
                   </TableCell>
                   <TableCell>{data?.demographics}</TableCell>
                 </TableRow>
