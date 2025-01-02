@@ -38,6 +38,7 @@ export const REQUEST_HISTORY_PAGESIZES = [20, 50, 100, 200, 500];
 export enum REQUEST_STATUS {
   PROCESSING = 'Processing',
   COMPLETED = 'Completed',
+  FAILED = 'Failed',
 }
 
 export enum API_METHODS {

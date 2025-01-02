@@ -10,7 +10,7 @@ import DownloadFileDialog from './DownloadFileDialog';
 import { useCallback, useState } from 'react';
 import { REQUEST_STATUS } from '@/constants';
 import { DateRange } from 'react-day-picker';
-import { endOfDay, format, isWithinInterval, startOfDay } from 'date-fns';
+import { endOfDay, isWithinInterval, parseISO, startOfDay } from 'date-fns';
 
 interface RequestHistoryColumnsProps {
   data: IRequestDetailFormatted[];
@@ -27,6 +27,14 @@ const RequestHistoryColumns = ({ data }: RequestHistoryColumnsProps) => {
     setOpenDialog(false);
   };
 
+  const formatUTCDate = useCallback((utcDateString: string) => {
+    const timestampWithUTC = utcDateString.endsWith('Z')
+      ? utcDateString
+      : `${utcDateString}Z`;
+    const date = parseISO(timestampWithUTC);
+    return date;
+  }, []);
+
   const isDateWithinRange = useCallback(
     (
       row: Row<IRequestDetailFormatted>,
@@ -34,8 +42,8 @@ const RequestHistoryColumns = ({ data }: RequestHistoryColumnsProps) => {
       filterValue: DateRange | undefined
     ) => {
       if (!filterValue) return true;
-      const cellDateValue = row.getValue('created_on') as string;
-      const cellDate = new Date(cellDateValue);
+      const cellDateValue = row.original.created_on;
+      const cellDate = formatUTCDate(cellDateValue);
 
       const { from, to } = filterValue;
       if ((from || to) && !cellDate) return false;
@@ -46,7 +54,7 @@ const RequestHistoryColumns = ({ data }: RequestHistoryColumnsProps) => {
         });
       } else return true;
     },
-    []
+    [formatUTCDate]
   );
 
   // Column definitions for request history table
@@ -77,8 +85,11 @@ const RequestHistoryColumns = ({ data }: RequestHistoryColumnsProps) => {
           isSorting={column.getIsSorted()}
         ></ColumnSortButton>
       ),
-      cell: ({ row }) =>
-        format(new Date(row.original.created_on), 'dd/M/y hh:mm:ss'),
+      cell: ({ row }) => (
+        <p className="uppercase">
+          {formatUTCDate(row.original.created_on).toLocaleString()}
+        </p>
+      ),
       filterFn: isDateWithinRange,
       sortingFn: 'datetime',
     },
@@ -97,7 +108,7 @@ const RequestHistoryColumns = ({ data }: RequestHistoryColumnsProps) => {
               setSelectedReqId(row.original.narration_id);
               setOpenDialog(true);
             }}
-            disabled={row.original.status === REQUEST_STATUS.PROCESSING}
+            disabled={row.original.status !== REQUEST_STATUS.COMPLETED}
             className="disabled:opacity-20"
           >
             <DownloadIcon className="h-6 w-6"></DownloadIcon>
