@@ -81,13 +81,30 @@ const RequestHistoryColumns = ({ data }: RequestHistoryColumnsProps) => {
       header: ({ column }) => (
         <ColumnSortButton
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          title={'Date'}
+          title={'Created'}
           isSorting={column.getIsSorted()}
         ></ColumnSortButton>
       ),
       cell: ({ row }) => (
         <p className="uppercase">
           {formatUTCDate(row.original.created_on).toLocaleString()}
+        </p>
+      ),
+      filterFn: isDateWithinRange,
+      sortingFn: 'datetime',
+    },
+    {
+      accessorKey: 'modified_on',
+      header: ({ column }) => (
+        <ColumnSortButton
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          title={'Completed'}
+          isSorting={column.getIsSorted()}
+        ></ColumnSortButton>
+      ),
+      cell: ({ row }) => (
+        <p className="uppercase">
+          {formatUTCDate(row.original.modified_on).toLocaleString()}
         </p>
       ),
       filterFn: isDateWithinRange,
