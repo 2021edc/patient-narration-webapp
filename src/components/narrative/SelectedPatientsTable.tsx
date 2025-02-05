@@ -9,12 +9,7 @@ import {
 } from '../ui/table';
 import { memo } from 'react';
 
-const TABLE_HEADERS = [
-  'Subject ID',
-  'Site',
-  'Date of Informed Consent',
-  'Demographics',
-];
+const TABLE_HEADERS = ['Subject ID', 'Site'];
 
 // component renders table to display selected subjects data in the UI
 
@@ -58,10 +53,6 @@ const SelectedSubjectsTable = ({
                     {data?.subject.trim()}
                   </TableCell>
                   <TableCell>{data?.site}</TableCell>
-                  <TableCell>
-                    {data?.consent_date ? data.consent_date : 'NA'}
-                  </TableCell>
-                  <TableCell>{data?.demographics}</TableCell>
                 </TableRow>
               );
             })}

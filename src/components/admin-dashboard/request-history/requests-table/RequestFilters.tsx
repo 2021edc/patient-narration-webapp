@@ -87,12 +87,6 @@ const RequestFilters = <TData,>({
           name={'createdbyfilter'}
           label={'Created By'}
         ></DropdownFilter>
-        <DateRangeFilter
-          column={table.getColumn('created_on')}
-          id="request_date"
-          className="col-span-2 m-1"
-          label="Created On"
-        ></DateRangeFilter>
         <FormInput
           id="ipAddress"
           name="ipAddress"
@@ -118,6 +112,18 @@ const RequestFilters = <TData,>({
           name={'statusfilter'}
           label={'Status'}
         ></DropdownFilter>
+        <DateRangeFilter
+          column={table.getColumn('created_on')}
+          id="request_date"
+          className="col-span-2 m-1"
+          label="Created"
+        ></DateRangeFilter>
+        <DateRangeFilter
+          column={table.getColumn('modified_on')}
+          id="completed_date"
+          className="col-span-2 m-1"
+          label="Completed"
+        ></DateRangeFilter>
 
         <div className="flex items-end mb-1">
           <Button

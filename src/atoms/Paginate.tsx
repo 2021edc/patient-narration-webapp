@@ -102,10 +102,10 @@ const Paginate = ({ totalPages }: PaginateProps) => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row items-center gap-">
+    <div className="flex flex-col md:flex-row items-center">
       <Pagination>
         <PaginationContent className="max-sm:gap-0">
-          <PaginationItem>
+          <PaginationItem className="hidden md:block">
             <PaginationLink
               href={buildLink(1)}
               aria-disabled={currentPage === 1}
@@ -138,7 +138,7 @@ const Paginate = ({ totalPages }: PaginateProps) => {
               }
             />
           </PaginationItem>
-          <PaginationItem>
+          <PaginationItem className="hidden md:block">
             <PaginationLink
               href={buildLink(totalPages)}
               aria-disabled={currentPage === totalPages}
