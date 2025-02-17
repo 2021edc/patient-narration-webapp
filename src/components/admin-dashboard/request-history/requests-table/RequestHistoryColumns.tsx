@@ -86,7 +86,7 @@ const RequestHistoryColumns = ({ data }: RequestHistoryColumnsProps) => {
         ></ColumnSortButton>
       ),
       cell: ({ row }) => (
-        <p className="uppercase">
+        <p className="uppercase" suppressHydrationWarning>
           {formatUTCDate(row.original.created_on).toLocaleString()}
         </p>
       ),
@@ -102,11 +102,14 @@ const RequestHistoryColumns = ({ data }: RequestHistoryColumnsProps) => {
           isSorting={column.getIsSorted()}
         ></ColumnSortButton>
       ),
-      cell: ({ row }) => (
-        <p className="uppercase">
-          {formatUTCDate(row.original.modified_on).toLocaleString()}
-        </p>
-      ),
+      cell: ({ row }) =>
+        row.original.status.toLowerCase() !== 'processing' ? (
+          <p className="uppercase" suppressHydrationWarning>
+            {formatUTCDate(row.original.modified_on).toLocaleString()}
+          </p>
+        ) : (
+          <p>-</p>
+        ),
       filterFn: isDateWithinRange,
       sortingFn: 'datetime',
     },
