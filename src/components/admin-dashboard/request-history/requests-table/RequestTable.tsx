@@ -64,7 +64,7 @@ const RequestHistoryTable = ({ columns, data }: RequestHistoryTableProps) => {
 
   return (
     <div>
-      <div className="sticky top-28 md:top-16 bg-white z-50">
+      <div className="sticky top-0 py-2 bg-white z-50">
         <RequestTableActions handleExport={handleExport}></RequestTableActions>
         <RequestFilters
           table={table}

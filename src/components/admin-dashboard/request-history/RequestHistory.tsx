@@ -53,16 +53,6 @@ const RequestHistory = async ({ searchParams }: RequestHistoryProps) => {
   // render pagination, page size selection and request table components
   return (
     <div className="relative">
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-4 py-4 sticky top-0 bg-white z-50">
-        <SelectPageSizeLimit
-          cookie_key={PREFERENCE_COOKIES.PAGE_SIZE}
-          selectOptions={REQUEST_HISTORY_PAGESIZES}
-          pageSize={String(pageSize)}
-        ></SelectPageSizeLimit>
-
-        <Paginate totalPages={totalPages}></Paginate>
-      </div>
-
       <Suspense
         fallback={<LoadingBars className="my-20 mx-auto"></LoadingBars>}
         key={page}
@@ -72,6 +62,15 @@ const RequestHistory = async ({ searchParams }: RequestHistoryProps) => {
           pageSize={pageSize}
         ></RequestTableWrapper>
       </Suspense>
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-4 mt-6 sticky bottom-0 border bg-white z-50">
+        <SelectPageSizeLimit
+          cookie_key={PREFERENCE_COOKIES.PAGE_SIZE}
+          selectOptions={REQUEST_HISTORY_PAGESIZES}
+          pageSize={String(pageSize)}
+        ></SelectPageSizeLimit>
+
+        <Paginate totalPages={totalPages}></Paginate>
+      </div>
     </div>
   );
 };
